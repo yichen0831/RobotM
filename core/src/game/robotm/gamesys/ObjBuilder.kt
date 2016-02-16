@@ -59,14 +59,55 @@ object ObjBuilder {
         return entity
     }
 
-    fun createWall() {
+    private fun createWallBody(x: Float, y: Float): Body {
 
+        val bodyDef = BodyDef()
+        bodyDef.position.set(x, y)
+        bodyDef.type = BodyDef.BodyType.StaticBody
+
+        val body = world!!.createBody(bodyDef)
+
+        val shape = PolygonShape()
+        shape.setAsBox(0.5f, 0.5f)
+
+        val fixtureDef = FixtureDef()
+        fixtureDef.shape = shape
+        fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_STATIC_OBSTACLE.toShort()
+        fixtureDef.filter.maskBits = GM.MASK_BITS_STATIC_OBSTACLE.toShort()
+
+        body.createFixture(fixtureDef)
+        shape.dispose()
+
+        return body
     }
 
-    fun createFloor(x: Float, y: Float, width: Int) {
+    fun createWall(left: Float, right: Float, top: Float, height: Int, type: String = "Grass") {
+
+        val textureAtlas = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java)
+        val textureRegion = TextureRegion(textureAtlas.findRegion(type), 64 * 5, 0, 64, 64)
+
+        for (i in 0..height - 1) {
+            var body = createWallBody(left, top + i)
+            var entity = Entity()
+            entity.add(TransformComponent(left, top + i))
+            entity.add(RendererComponent(textureRegion, 1f, 1f))
+            body.userData = entity
+            engine!!.addEntity(entity)
+
+            body = createWallBody(right, top + i)
+            entity = Entity()
+            entity.add(TransformComponent(right, top + i))
+            entity.add(RendererComponent(textureRegion, 1f, 1f))
+            body.userData = entity
+            engine!!.addEntity(entity)
+
+        }
+    }
+
+    fun createFloor(x: Float, y: Float, width: Int, type: String = "Grass") {
         val textureAtlas = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java)
 
-        for (i in 0..width.toInt() - 1) {
+        for (i in 0..width - 1) {
 
             val bodyDef = BodyDef()
             bodyDef.type = BodyDef.BodyType.StaticBody
@@ -85,9 +126,21 @@ object ObjBuilder {
             body.createFixture(fixtureDef)
             shape.dispose()
 
+            val textureRegion: TextureRegion
+
+            if (width == 1) {
+                textureRegion = TextureRegion(textureAtlas.findRegion(type), 0, 0, 64, 64)
+            } else {
+                when (i) {
+                    0 -> textureRegion = TextureRegion(textureAtlas.findRegion(type), 64 * 1, 0, 64, 64)
+                    width - 1 -> textureRegion = TextureRegion(textureAtlas.findRegion(type), 64 * 3, 0, 64, 64)
+                    else -> textureRegion = TextureRegion(textureAtlas.findRegion(type), 64 * 2, 0, 64, 64)
+                }
+            }
+
             val entity = Entity()
             entity.add(TransformComponent(x + i, y))
-            entity.add(RendererComponent(TextureRegion(textureAtlas.findRegion("Grass"), 64 * 2, 0, 64, 64), 1f, 1f))
+            entity.add(RendererComponent(textureRegion, 1f, 1f))
 
             engine!!.addEntity(entity)
 
