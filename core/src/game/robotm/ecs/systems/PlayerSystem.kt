@@ -23,17 +23,21 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
     val tmpVector2 = Vector2()
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
+        val playerComponent = playerM.get(entity)
         val physicComponent = physicM.get(entity)
         val body = physicComponent.body
         val animationComponent = animM.get(entity)
         val rendererComponent = rendererM.get(entity)
 
+        var playerMoving = false
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            body.applyLinearImpulse(tmpVector2.set(0f, 1f), body.worldCenter, true)
+            body.applyLinearImpulse(tmpVector2.set(0f, 4f), body.worldCenter, true)
         } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            body.applyLinearImpulse(tmpVector2.set(-0.1f, 0f), body.worldCenter, true)
+            body.applyLinearImpulse(tmpVector2.set(-playerComponent.speed - body.linearVelocity.x, 0f).scl(body.mass), body.worldCenter, true)
+            playerMoving = true
         } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            body.applyLinearImpulse(tmpVector2.set(0.1f, 0f), body.worldCenter, true)
+            body.applyLinearImpulse(tmpVector2.set(playerComponent.speed - body.linearVelocity.x, 0f).scl(body.mass), body.worldCenter, true)
+            playerMoving = true
         }
 
         if (body.linearVelocity.x < -0.1f) {
@@ -45,7 +49,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         if (Math.abs(body.linearVelocity.y) > 0.1f) {
             animationComponent.currentAnim = "fall"
         } else {
-            if (Math.abs(body.linearVelocity.x) > 0.1f) {
+            if (playerMoving) {
                 animationComponent.currentAnim = "move"
             } else {
                 animationComponent.currentAnim = "idle"

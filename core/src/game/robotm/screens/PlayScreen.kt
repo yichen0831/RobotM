@@ -8,6 +8,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.physics.box2d.World
@@ -44,7 +45,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         camera = OrthographicCamera()
         viewport = FitViewport(WIDTH, HEIGHT, camera)
 
-        world = World(Vector2(0f, -20f), true)
+        world = World(Vector2(0f, -16f), true)
         engine = Engine()
 
         engine.addSystem(PlayerSystem())
@@ -59,10 +60,11 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         /* tmp code */
         ObjBuilder.createPlayer(0f, 0f)
         ObjBuilder.createFloor(0f, 0f, 4)
-        ObjBuilder.createFloor(0f, 0f, 4)
-        ObjBuilder.createFloor(0f, -4f, 4)
-        ObjBuilder.createFloor(0f, -8f, 4)
+        ObjBuilder.createFloor(-2f, -4f, 1)
+        ObjBuilder.createFloor(-4f, -8f, 2)
+        ObjBuilder.createFloor(6f, -12f, 4)
 
+        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat(), MathUtils.floor(WIDTH / 2f).toFloat(), 0f, 3)
 
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 

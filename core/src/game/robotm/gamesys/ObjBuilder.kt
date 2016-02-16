@@ -34,6 +34,7 @@ object ObjBuilder {
         fixtureDef.density = 0.5f
         fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_PLAYER.toShort()
         fixtureDef.filter.maskBits = GM.MASK_BITS_PLAYER.toShort()
+        fixtureDef.friction = 0f
 
         body.createFixture(fixtureDef)
         boxShape.dispose()
@@ -41,6 +42,7 @@ object ObjBuilder {
         val edgeShape = EdgeShape()
         edgeShape.set(-0.45f, -0.375f, 0.45f, -0.375f)
         fixtureDef.shape = edgeShape
+        fixtureDef.friction = 1f
         body.createFixture(fixtureDef)
         edgeShape.dispose()
 
@@ -151,6 +153,11 @@ object ObjBuilder {
             fixtureDef.shape = shape
             fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_STATIC_OBSTACLE.toShort()
             fixtureDef.filter.maskBits = GM.MASK_BITS_STATIC_OBSTACLE.toShort()
+
+            when (type) {
+                "Grass" -> fixtureDef.friction = 0.5f
+                else -> fixtureDef.friction = 0.5f
+            }
 
             body.createFixture(fixtureDef)
             shape.dispose()
