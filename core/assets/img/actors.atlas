@@ -1,0 +1,19 @@
+
+actors.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+RobotM
+  rotate: false
+  xy: 1, 67
+  size: 704, 48
+  orig: 704, 48
+  offset: 0, 0
+  index: -1
+Grass
+  rotate: false
+  xy: 1, 1
+  size: 384, 64
+  orig: 384, 64
+  offset: 0, 0
+  index: -1
