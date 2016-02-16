@@ -3,13 +3,13 @@ package game.robotm.gamesys
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.physics.box2d.*
-import game.robotm.ecs.components.PhysicsComponent
-import game.robotm.ecs.components.PlayerComponent
-import game.robotm.ecs.components.RendererComponent
-import game.robotm.ecs.components.TransformComponent
+import com.badlogic.gdx.utils.Array
+import game.robotm.ecs.components.*
+import java.util.*
 
 
 object ObjBuilder {
@@ -47,10 +47,37 @@ object ObjBuilder {
         val textureAtlas = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java)
         val textureRegion = textureAtlas.findRegion("RobotM")
 
+        val anims = HashMap<String, Animation>()
+        var anim: Animation
+
+        var keyFrames = Array<TextureRegion>()
+
+        // idle animation
+        keyFrames.add(TextureRegion(textureRegion, 64 * 3, 0, 64, 48))
+        anim = Animation(0.1f, keyFrames, Animation.PlayMode.LOOP)
+        anims.put("idle", anim)
+
+        keyFrames.clear()
+
+        // move animation
+        for (i in 0..1) {
+            keyFrames.add(TextureRegion(textureRegion, 64 * (3 + i), 0, 64, 48))
+        }
+        anim = Animation(0.1f, keyFrames, Animation.PlayMode.LOOP)
+        anims.put("move", anim)
+
+        keyFrames.clear()
+
+        // fall animation
+        keyFrames.add(TextureRegion(textureRegion, 64 * 6, 0, 64, 48))
+        anim = Animation(0.1f, keyFrames, Animation.PlayMode.NORMAL)
+        anims.put("fall", anim)
+
         val entity = Entity()
         entity.add(PlayerComponent())
         entity.add(PhysicsComponent(body))
         entity.add(RendererComponent(TextureRegion(textureRegion, 64 * 3, 0, 64, 48), 64 / GM.PPM, 48 / GM.PPM))
+        entity.add(AnimationComponent(anims, "idle"))
         entity.add(TransformComponent(x, y))
 
         engine!!.addEntity(entity)
@@ -86,9 +113,11 @@ object ObjBuilder {
         val textureAtlas = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java)
         val textureRegion = TextureRegion(textureAtlas.findRegion(type), 64 * 5, 0, 64, 64)
 
+        var body: Body
+        var entity: Entity
         for (i in 0..height - 1) {
-            var body = createWallBody(left, top + i)
-            var entity = Entity()
+            body = createWallBody(left, top + i)
+            entity = Entity()
             entity.add(TransformComponent(left, top + i))
             entity.add(RendererComponent(textureRegion, 1f, 1f))
             body.userData = entity
