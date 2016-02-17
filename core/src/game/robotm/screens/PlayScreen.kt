@@ -22,12 +22,14 @@ import game.robotm.gamesys.ObjBuilder
 
 class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
-    val WIDTH = 15f
+    val WIDTH = 16f
     val HEIGHT = 20f
 
     val batch = mainGame.batch
     lateinit var camera: OrthographicCamera
     lateinit var viewport: FitViewport
+
+    var cameraSpeed = 2.4f
 
     val assetManager = AssetManager()
 
@@ -57,14 +59,17 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         ObjBuilder.world = world
         ObjBuilder.engine = engine
 
-        /* tmp code */
-        ObjBuilder.createPlayer(0f, 0f)
-        ObjBuilder.createFloor(0f, 0f, 4)
-        ObjBuilder.createFloor(-2f, -4f, 1)
-        ObjBuilder.createFloor(-4f, -8f, 2)
-        ObjBuilder.createFloor(6f, -12f, 4)
+        ObjBuilder.createPlayer(0f, 1.5f)
+        // start location
+        ObjBuilder.createFloor(-1.5f, 0.5f, 4)
 
-        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat(), MathUtils.floor(WIDTH / 2f).toFloat(), 0f, 3)
+        /* tmp code */
+//        ObjBuilder.createFloor(-7.5f, -9.5f, 16)
+//        ObjBuilder.createFloor(-4.5f, -8.5f, 2)
+//        ObjBuilder.createFloor(6.5f, -12.5f, 4)
+        ObjBuilder.generateFloors(start = 0f, height = 200)
+
+        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, 9.5f, 20)
 
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 
@@ -80,6 +85,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         inputHandler()
+
+        camera.position.y -= cameraSpeed * delta
 
         camera.update()
         batch.projectionMatrix = camera.combined

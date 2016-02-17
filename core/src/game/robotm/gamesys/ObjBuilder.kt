@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.utils.Array
@@ -31,7 +32,7 @@ object ObjBuilder {
         val body = world!!.createBody(bodyDef)
 
         val boxShape = PolygonShape()
-        boxShape.setAsBox(0.45f * scale, 0.3f * scale)
+        boxShape.setAsBox(0.42f * scale, 0.3f * scale)
         val fixtureDef = FixtureDef()
         fixtureDef.shape = boxShape
         fixtureDef.density = 0.5f
@@ -106,6 +107,7 @@ object ObjBuilder {
         fixtureDef.shape = shape
         fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_STATIC_OBSTACLE.toShort()
         fixtureDef.filter.maskBits = GM.MASK_BITS_STATIC_OBSTACLE.toShort()
+        fixtureDef.friction = 0f
 
         body.createFixture(fixtureDef)
         shape.dispose()
@@ -121,16 +123,16 @@ object ObjBuilder {
         var body: Body
         var entity: Entity
         for (i in 0..height - 1) {
-            body = createWallBody(left, top + i)
+            body = createWallBody(left, top - i)
             entity = Entity()
-            entity.add(TransformComponent(left, top + i))
+            entity.add(TransformComponent(left, top - i))
             entity.add(RendererComponent(textureRegion, 1f, 1f))
             body.userData = entity
             engine!!.addEntity(entity)
 
-            body = createWallBody(right, top + i)
+            body = createWallBody(right, top - i)
             entity = Entity()
-            entity.add(TransformComponent(right, top + i))
+            entity.add(TransformComponent(right, top - i))
             entity.add(RendererComponent(textureRegion, 1f, 1f))
             body.userData = entity
             engine!!.addEntity(entity)
@@ -158,8 +160,8 @@ object ObjBuilder {
             fixtureDef.filter.maskBits = GM.MASK_BITS_STATIC_OBSTACLE.toShort()
 
             when (type) {
-                "Grass" -> fixtureDef.friction = 0.5f
-                else -> fixtureDef.friction = 0.5f
+                "Grass" -> fixtureDef.friction = 0.8f
+                else -> fixtureDef.friction = 0.8f
             }
 
             body.createFixture(fixtureDef)
@@ -185,5 +187,26 @@ object ObjBuilder {
 
             body.userData = entity
         }
+    }
+
+    fun generateFloors(start: Float, height: Int) {
+
+        var gap: Int  = MathUtils.random(3, 4)
+        var x: Float  = MathUtils.random(0, 14) - 8f + 0.5f
+        var y: Float = MathUtils.floor(start) - gap + 0.5f
+        var length: Int = MathUtils.random(4, 6)
+
+        while (y >= start - height) {
+            if ((gap == 4) || (MathUtils.random() > 0.2f) ) {
+                createFloor(x, y, length)
+            }
+
+            x = MathUtils.random(0, 14) - 8f + 0.5f
+            y -= gap
+
+            gap = MathUtils.random(3, 4)
+            length = MathUtils.random(4, 6)
+        }
+
     }
 }
