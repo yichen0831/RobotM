@@ -192,7 +192,7 @@ object ObjBuilder {
     fun generateFloors(start: Float, height: Int) {
 
         var gap: Int  = MathUtils.random(3, 4)
-        var x: Float  = MathUtils.random(0, 14) - 8f + 0.5f
+        var x: Float  = MathUtils.random(-2, 12) - 8f + 0.5f
         var y: Float = MathUtils.floor(start) - gap + 0.5f
         var length: Int = MathUtils.random(4, 6)
 
@@ -201,7 +201,7 @@ object ObjBuilder {
                 createFloor(x, y, length)
             }
 
-            x = MathUtils.random(0, 14) - 8f + 0.5f
+            x = MathUtils.random(-2, 12) - 8f + 0.5f
             y -= gap
 
             gap = MathUtils.random(3, 4)

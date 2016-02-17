@@ -30,6 +30,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     lateinit var viewport: FitViewport
 
     var cameraSpeed = 2.4f
+    var nextFloorsAndWallGeneratingY = 0f
+    val generatingInterval = 40
 
     val assetManager = AssetManager()
 
@@ -63,16 +65,15 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         // start location
         ObjBuilder.createFloor(-1.5f, 0.5f, 4)
 
-        /* tmp code */
-//        ObjBuilder.createFloor(-7.5f, -9.5f, 16)
-//        ObjBuilder.createFloor(-4.5f, -8.5f, 2)
-//        ObjBuilder.createFloor(6.5f, -12.5f, 4)
-        ObjBuilder.generateFloors(start = 0f, height = 200)
-
-        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, 9.5f, 20)
-
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 
+    }
+
+    fun generateFloorsAndWalls() {
+        ObjBuilder.generateFloors(start = nextFloorsAndWallGeneratingY, height = generatingInterval)
+        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, nextFloorsAndWallGeneratingY + 9.5f, generatingInterval)
+
+        nextFloorsAndWallGeneratingY -= generatingInterval
     }
 
     private fun inputHandler() {
@@ -87,6 +88,10 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         inputHandler()
 
         camera.position.y -= cameraSpeed * delta
+
+        if (camera.position.y < nextFloorsAndWallGeneratingY + HEIGHT) {
+            generateFloorsAndWalls()
+        }
 
         camera.update()
         batch.projectionMatrix = camera.combined

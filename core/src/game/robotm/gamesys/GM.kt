@@ -5,7 +5,7 @@ object GM {
 
     val PPM = 64f
 
-    val PLAYER_SCALE = 1.2f
+    val PLAYER_SCALE = 1.5f
 
     val CATEGORY_BITS_STATIC_OBSTACLE: Int = 1
     val CATEGORY_BITS_PLAYER: Int = 2
