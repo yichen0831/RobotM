@@ -15,6 +15,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.FitViewport
 import game.robotm.RobotM
@@ -34,7 +36,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     lateinit var camera: OrthographicCamera
     lateinit var viewport: FitViewport
 
-    var cameraSpeed = 2.4f
+    var cameraSpeed = 3.6f
     var nextFloorsAndWallGeneratingY = 0f
     val generatingInterval = 40
 
@@ -45,6 +47,12 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
     lateinit var backgroundSprite: Sprite
 
+    lateinit var stage: Stage
+    lateinit var gameOverImage: Image
+    lateinit var getReadyImage: Image
+
+    var readyCountDown = 3f
+
     val box2DDebugRenderer = Box2DDebugRenderer()
     var showBox2DDebugRenderer = true
 
@@ -52,6 +60,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         assetManager.load("img/actors.atlas", TextureAtlas::class.java)
         assetManager.load("img/backgrounds/blue_grass.png", Texture::class.java)
+        assetManager.load("img/textGameOver.png", Texture::class.java)
+        assetManager.load("img/textGetReady.png", Texture::class.java)
         assetManager.finishLoading()
 
         camera = OrthographicCamera()
@@ -59,6 +69,20 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         backgroundSprite = Sprite(assetManager.get("img/backgrounds/blue_grass.png", Texture::class.java))
         backgroundSprite.setBounds(-HEIGHT / 2f, -HEIGHT / 2f, HEIGHT, HEIGHT)
+
+        stage = Stage()
+        gameOverImage = Image(assetManager.get("img/textGameOver.png", Texture::class.java))
+        gameOverImage.setSize(250f, 50f)
+        gameOverImage.setPosition((Gdx.graphics.width - gameOverImage.width) / 2f, (Gdx.graphics.height - gameOverImage.height) / 2f)
+        gameOverImage.isVisible = GM.gameOver
+
+        getReadyImage = Image(assetManager.get("img/textGetReady.png", Texture::class.java))
+        getReadyImage.setSize(250f, 45.5f)
+        getReadyImage.setPosition((Gdx.graphics.width - getReadyImage.width) / 2f, (Gdx.graphics.height - getReadyImage.height) / 2f)
+        getReadyImage.isVisible = GM.getReady
+
+        stage.addActor(gameOverImage)
+        stage.addActor(getReadyImage)
 
         world = World(Vector2(0f, -16f), true)
         engine = Engine()
@@ -84,19 +108,26 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         ObjBuilder.world = world
         ObjBuilder.engine = engine
 
-        ObjBuilder.createPlayer(0f, 1.5f)
+        ObjBuilder.createPlayer(0f, -3.45f)
         // start location
-        ObjBuilder.createFloor(-1.5f, 0.5f, 4)
+        ObjBuilder.createFloor(-1.5f, -4.5f, 4)
+        // fill initial wall holes
+        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, 9.5f, 5)
 
         camera.position.y = 0f
-        nextFloorsAndWallGeneratingY = 0f
+        nextFloorsAndWallGeneratingY = -4.5f
 
+        generateFloorsAndWalls()
+
+        readyCountDown = 3f
+
+        GM.getReady = true
         GM.gameOver = false
     }
 
     private fun generateFloorsAndWalls() {
         ObjBuilder.generateFloors(start = nextFloorsAndWallGeneratingY, height = generatingInterval)
-        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, nextFloorsAndWallGeneratingY + 9.5f, generatingInterval)
+        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, nextFloorsAndWallGeneratingY + 9f, generatingInterval)
 
         nextFloorsAndWallGeneratingY -= generatingInterval
     }
@@ -114,14 +145,11 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
     fun update(delta: Float) {
         camera.position.y -= cameraSpeed * delta
-        GM.cameraY = camera.position.y
 
         if (camera.position.y < nextFloorsAndWallGeneratingY + HEIGHT) {
             generateFloorsAndWalls()
         }
-        camera.update()
 
-        backgroundSprite.y = camera.position.y - HEIGHT / 2f
     }
 
     override fun render(delta: Float) {
@@ -129,10 +157,22 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         inputHandler()
 
-        if (!GM.gameOver) {
+        if (GM.getReady) {
+            readyCountDown -= delta
+
+            if (readyCountDown <= 0) {
+                GM.getReady = false
+            }
+        }
+
+        if (!GM.gameOver && !GM.getReady) {
             update(delta)
             world.step(Math.min(delta, 1 / 60f), 8, 3)
         }
+
+        camera.update()
+        GM.cameraY = camera.position.y
+        backgroundSprite.y = camera.position.y - HEIGHT / 2f
 
         batch.projectionMatrix = camera.combined
         batch.begin()
@@ -144,10 +184,14 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         if (showBox2DDebugRenderer) {
             box2DDebugRenderer.render(world, camera.combined)
         }
+
+        getReadyImage.isVisible = GM.getReady
+        stage.draw()
     }
 
     override fun resize(width: Int, height: Int) {
         viewport.update(width, height)
+        stage.viewport.update(width, height)
     }
 
     override fun dispose() {

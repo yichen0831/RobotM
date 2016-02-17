@@ -16,6 +16,7 @@ object GM {
     val MASK_BITS_STATIC_OBSTACLE: Int = CATEGORY_BITS_PLAYER
     val MASK_BITS_PLAYER: Int = CATEGORY_BITS_STATIC_OBSTACLE or CATEGORY_BITS_PLAYER
 
+    var getReady = true
     var gameOver = false
     var cameraY = 0f
 }

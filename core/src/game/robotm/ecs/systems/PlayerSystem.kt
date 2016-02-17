@@ -35,14 +35,17 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         val playerInAir = checkPlayerInAir(body)
 
         var playerMoving = false
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && !playerInAir) {
-            body.applyLinearImpulse(tmpVec1.set(0f, 8f).scl(body.mass), body.worldCenter, true)
-        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            body.applyLinearImpulse(tmpVec1.set(-playerComponent.speed - body.linearVelocity.x, 0f).scl(body.mass), body.worldCenter, true)
-            playerMoving = true
-        } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            body.applyLinearImpulse(tmpVec1.set(playerComponent.speed - body.linearVelocity.x, 0f).scl(body.mass), body.worldCenter, true)
-            playerMoving = true
+        if (!GM.gameOver && !GM.getReady) {
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && !playerInAir) {
+                body.applyLinearImpulse(tmpVec1.set(0f, 8f).scl(body.mass), body.worldCenter, true)
+            } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                body.applyLinearImpulse(tmpVec1.set(-playerComponent.speed - body.linearVelocity.x, 0f).scl(body.mass), body.worldCenter, true)
+                playerMoving = true
+            } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                body.applyLinearImpulse(tmpVec1.set(playerComponent.speed - body.linearVelocity.x, 0f).scl(body.mass), body.worldCenter, true)
+                playerMoving = true
+            }
         }
 
         if (body.linearVelocity.x < -0.1f) {
@@ -61,7 +64,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
             }
         }
 
-        if (body.position.y < GM.cameraY - GM.SCREEN_HEIGHT / 2f - 2f) {
+        if (body.position.y < GM.cameraY - GM.SCREEN_HEIGHT / 2f - 1f) {
             GM.gameOver = true
         }
 
