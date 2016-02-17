@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.utils.Array
 import game.robotm.ecs.components.*
@@ -20,6 +21,8 @@ object ObjBuilder {
 
     fun createPlayer(x: Float, y: Float): Entity {
 
+        val scale = GM.PLAYER_SCALE
+
         val bodyDef = BodyDef()
         bodyDef.type = BodyDef.BodyType.DynamicBody
         bodyDef.position.set(x, y)
@@ -28,7 +31,7 @@ object ObjBuilder {
         val body = world!!.createBody(bodyDef)
 
         val boxShape = PolygonShape()
-        boxShape.setAsBox(0.45f, 0.3f)
+        boxShape.setAsBox(0.45f * scale, 0.3f * scale)
         val fixtureDef = FixtureDef()
         fixtureDef.shape = boxShape
         fixtureDef.density = 0.5f
@@ -40,7 +43,7 @@ object ObjBuilder {
         boxShape.dispose()
 
         val edgeShape = EdgeShape()
-        edgeShape.set(-0.45f, -0.375f, 0.45f, -0.375f)
+        edgeShape.set(Vector2(-0.45f, -0.375f).scl(scale), Vector2(0.45f, -0.375f).scl(scale))
         fixtureDef.shape = edgeShape
         fixtureDef.friction = 1f
         body.createFixture(fixtureDef)
@@ -49,7 +52,7 @@ object ObjBuilder {
         val textureAtlas = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java)
         val textureRegion = textureAtlas.findRegion("RobotM")
 
-        val anims = HashMap<String, Animation>()
+        val animations = HashMap<String, Animation>()
         var anim: Animation
 
         var keyFrames = Array<TextureRegion>()
@@ -57,7 +60,7 @@ object ObjBuilder {
         // idle animation
         keyFrames.add(TextureRegion(textureRegion, 64 * 3, 0, 64, 48))
         anim = Animation(0.1f, keyFrames, Animation.PlayMode.LOOP)
-        anims.put("idle", anim)
+        animations.put("idle", anim)
 
         keyFrames.clear()
 
@@ -66,20 +69,20 @@ object ObjBuilder {
             keyFrames.add(TextureRegion(textureRegion, 64 * (3 + i), 0, 64, 48))
         }
         anim = Animation(0.1f, keyFrames, Animation.PlayMode.LOOP)
-        anims.put("move", anim)
+        animations.put("move", anim)
 
         keyFrames.clear()
 
         // fall animation
         keyFrames.add(TextureRegion(textureRegion, 64 * 6, 0, 64, 48))
         anim = Animation(0.1f, keyFrames, Animation.PlayMode.NORMAL)
-        anims.put("fall", anim)
+        animations.put("fall", anim)
 
         val entity = Entity()
         entity.add(PlayerComponent())
         entity.add(PhysicsComponent(body))
-        entity.add(RendererComponent(TextureRegion(textureRegion, 64 * 3, 0, 64, 48), 64 / GM.PPM, 48 / GM.PPM))
-        entity.add(AnimationComponent(anims, "idle"))
+        entity.add(RendererComponent(TextureRegion(textureRegion, 64 * 3, 0, 64, 48), 64 / GM.PPM * scale, 48 / GM.PPM * scale))
+        entity.add(AnimationComponent(animations, "idle"))
         entity.add(TransformComponent(x, y))
 
         engine!!.addEntity(entity)
