@@ -12,20 +12,23 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.FitViewport
 import game.robotm.RobotM
 import game.robotm.ecs.systems.AnimationSystem
 import game.robotm.ecs.systems.PhysicsSystem
 import game.robotm.ecs.systems.PlayerSystem
 import game.robotm.ecs.systems.RenderSystem
+import game.robotm.gamesys.GM
 import game.robotm.gamesys.ObjBuilder
 
 class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
-    val WIDTH = 16f
-    val HEIGHT = 20f
+    val WIDTH = GM.SCREEN_WIDTH
+    val HEIGHT = GM.SCREEN_HEIGHT
 
     val batch = mainGame.batch
     lateinit var camera: OrthographicCamera
@@ -65,6 +68,18 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         engine.addSystem(AnimationSystem())
         engine.addSystem(RenderSystem(batch))
 
+        resetGame()
+
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
+
+    }
+
+    private fun resetGame() {
+        val bodies = Array<Body>()
+        world.getBodies(bodies)
+        bodies.forEach { world.destroyBody(it) }
+        engine.removeAllEntities()
+
         ObjBuilder.assetManager = assetManager
         ObjBuilder.world = world
         ObjBuilder.engine = engine
@@ -73,11 +88,13 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         // start location
         ObjBuilder.createFloor(-1.5f, 0.5f, 4)
 
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
+        camera.position.y = 0f
+        nextFloorsAndWallGeneratingY = 0f
 
+        GM.gameOver = false
     }
 
-    fun generateFloorsAndWalls() {
+    private fun generateFloorsAndWalls() {
         ObjBuilder.generateFloors(start = nextFloorsAndWallGeneratingY, height = generatingInterval)
         ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, nextFloorsAndWallGeneratingY + 9.5f, generatingInterval)
 
@@ -88,10 +105,17 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
             showBox2DDebugRenderer = !showBox2DDebugRenderer
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            resetGame()
+        }
+
     }
 
     fun update(delta: Float) {
         camera.position.y -= cameraSpeed * delta
+        GM.cameraY = camera.position.y
+
         if (camera.position.y < nextFloorsAndWallGeneratingY + HEIGHT) {
             generateFloorsAndWalls()
         }
@@ -105,14 +129,15 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         inputHandler()
 
-        update(delta)
+        if (!GM.gameOver) {
+            update(delta)
+            world.step(Math.min(delta, 1 / 60f), 8, 3)
+        }
 
         batch.projectionMatrix = camera.combined
         batch.begin()
         backgroundSprite.draw(batch)
         batch.end()
-
-        world.step(Math.min(delta, 1 / 60f), 8, 3)
 
         engine.update(delta)
 

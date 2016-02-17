@@ -20,7 +20,7 @@ object ObjBuilder {
     var world: World? = null
     var engine: Engine? = null
 
-    fun createPlayer(x: Float, y: Float): Entity {
+    fun createPlayer(x: Float, y: Float) {
 
         val scale = GM.PLAYER_SCALE
 
@@ -89,7 +89,6 @@ object ObjBuilder {
         engine!!.addEntity(entity)
 
         body.userData = entity
-        return entity
     }
 
     private fun createWallBody(x: Float, y: Float): Body {
@@ -126,6 +125,7 @@ object ObjBuilder {
             body = createWallBody(left, top - i)
             entity = Entity()
             entity.add(TransformComponent(left, top - i))
+            entity.add(PhysicsComponent(body))
             entity.add(RendererComponent(textureRegion, 1f, 1f))
             body.userData = entity
             engine!!.addEntity(entity)
@@ -133,6 +133,7 @@ object ObjBuilder {
             body = createWallBody(right, top - i)
             entity = Entity()
             entity.add(TransformComponent(right, top - i))
+            entity.add(PhysicsComponent(body))
             entity.add(RendererComponent(textureRegion, 1f, 1f))
             body.userData = entity
             engine!!.addEntity(entity)
@@ -181,6 +182,7 @@ object ObjBuilder {
 
             val entity = Entity()
             entity.add(TransformComponent(x + i, y))
+            entity.add(PhysicsComponent(body))
             entity.add(RendererComponent(textureRegion, 1f, 1f))
 
             engine!!.addEntity(entity)
@@ -191,20 +193,19 @@ object ObjBuilder {
 
     fun generateFloors(start: Float, height: Int) {
 
-        var gap: Int  = MathUtils.random(3, 4)
-        var x: Float  = MathUtils.random(-2, 12) - 8f + 0.5f
-        var y: Float = MathUtils.floor(start) - gap + 0.5f
+        var gap: Int  = MathUtils.random(4, 6)
         var length: Int = MathUtils.random(4, 6)
 
-        while (y >= start - height) {
-            if ((gap == 4) || (MathUtils.random() > 0.2f) ) {
-                createFloor(x, y, length)
-            }
+        var x: Float = MathUtils.random(-GM.SCREEN_WIDTH.toInt() / 2 + 1, GM.SCREEN_WIDTH.toInt() / 2 - length - 2) + 0.5f
+        var y: Float = MathUtils.floor(start) - gap + 0.5f
 
-            x = MathUtils.random(-2, 12) - 8f + 0.5f
+        while (y >= start - height) {
+            createFloor(x, y, length)
+
+            x = MathUtils.random(-GM.SCREEN_WIDTH.toInt() / 2 + 1, GM.SCREEN_WIDTH.toInt() / 2 - length - 2) + 0.5f
             y -= gap
 
-            gap = MathUtils.random(3, 4)
+            gap = MathUtils.random(4, 6)
             length = MathUtils.random(4, 6)
         }
 

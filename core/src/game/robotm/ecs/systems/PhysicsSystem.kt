@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
 import game.robotm.ecs.components.PhysicsComponent
 import game.robotm.ecs.components.TransformComponent
+import game.robotm.gamesys.GM
 
 
 class PhysicsSystem : IteratingSystem(Family.all(TransformComponent::class.java, PhysicsComponent::class.java).get()) {
@@ -22,6 +23,11 @@ class PhysicsSystem : IteratingSystem(Family.all(TransformComponent::class.java,
         transformComponent.x = body.position.x
         transformComponent.y = body.position.y
         transformComponent.rotation = body.angle
+
+        if (body.position.y > GM.cameraY + GM.SCREEN_HEIGHT / 2f + 0.5f) {
+            body.world.destroyBody(body)
+            engine.removeEntity(entity)
+        }
     }
 
 }

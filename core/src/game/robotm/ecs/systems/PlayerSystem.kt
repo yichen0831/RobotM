@@ -61,6 +61,10 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
             }
         }
 
+        if (body.position.y < GM.cameraY - GM.SCREEN_HEIGHT / 2f - 2f) {
+            GM.gameOver = true
+        }
+
     }
 
     private fun checkPlayerInAir(body: Body): Boolean {
