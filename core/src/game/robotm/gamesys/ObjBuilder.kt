@@ -32,7 +32,7 @@ object ObjBuilder {
         val body = world!!.createBody(bodyDef)
 
         val boxShape = PolygonShape()
-        boxShape.setAsBox(0.42f * scale, 0.3f * scale)
+        boxShape.setAsBox(0.45f * scale, 0.3f * scale)
         val fixtureDef = FixtureDef()
         fixtureDef.shape = boxShape
         fixtureDef.density = 0.5f

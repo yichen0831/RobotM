@@ -7,6 +7,8 @@ import com.badlogic.gdx.ScreenAdapter
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
@@ -38,16 +40,22 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     lateinit var world: World
     lateinit var engine: Engine
 
+    lateinit var backgroundSprite: Sprite
+
     val box2DDebugRenderer = Box2DDebugRenderer()
     var showBox2DDebugRenderer = true
 
     override fun show() {
 
         assetManager.load("img/actors.atlas", TextureAtlas::class.java)
+        assetManager.load("img/backgrounds/blue_grass.png", Texture::class.java)
         assetManager.finishLoading()
 
         camera = OrthographicCamera()
         viewport = FitViewport(WIDTH, HEIGHT, camera)
+
+        backgroundSprite = Sprite(assetManager.get("img/backgrounds/blue_grass.png", Texture::class.java))
+        backgroundSprite.setBounds(-HEIGHT / 2f, -HEIGHT / 2f, HEIGHT, HEIGHT)
 
         world = World(Vector2(0f, -16f), true)
         engine = Engine()
@@ -82,19 +90,27 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         }
     }
 
+    fun update(delta: Float) {
+        camera.position.y -= cameraSpeed * delta
+        if (camera.position.y < nextFloorsAndWallGeneratingY + HEIGHT) {
+            generateFloorsAndWalls()
+        }
+        camera.update()
+
+        backgroundSprite.y = camera.position.y - HEIGHT / 2f
+    }
+
     override fun render(delta: Float) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         inputHandler()
 
-        camera.position.y -= cameraSpeed * delta
+        update(delta)
 
-        if (camera.position.y < nextFloorsAndWallGeneratingY + HEIGHT) {
-            generateFloorsAndWalls()
-        }
-
-        camera.update()
         batch.projectionMatrix = camera.combined
+        batch.begin()
+        backgroundSprite.draw(batch)
+        batch.end()
 
         world.step(Math.min(delta, 1 / 60f), 8, 3)
 
