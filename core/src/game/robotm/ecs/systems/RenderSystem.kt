@@ -28,7 +28,7 @@ class RenderSystem(val batch: SpriteBatch) : IteratingSystem(Family.all(Renderer
 
         batch.draw(textureRegion,
                 transformComponent.x - rendererComponent.width / 2f, transformComponent.y - rendererComponent.height / 2f,
-                rendererComponent.width / 2f, rendererComponent.height / 2f,
+                rendererComponent.originX, rendererComponent.originY,
                 rendererComponent.width, rendererComponent.height,
                 rendererComponent.sclX, rendererComponent.sclY, transformComponent.rotation)
     }

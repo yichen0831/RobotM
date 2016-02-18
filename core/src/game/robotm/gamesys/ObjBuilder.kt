@@ -157,13 +157,24 @@ object ObjBuilder {
 
             val fixtureDef = FixtureDef()
             fixtureDef.shape = shape
-            fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_STATIC_OBSTACLE.toShort()
-            fixtureDef.filter.maskBits = GM.MASK_BITS_STATIC_OBSTACLE.toShort()
+
+            when (type) {
+                "Choco" -> {
+                    fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_STATIC_OBSTACLE_UNJUMPABLE.toShort()
+                    fixtureDef.filter.maskBits = GM.MAST_BITS_STATIC_OBSTACLE_UNJUMPABLE.toShort()
+                }
+                else -> {
+                    fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_STATIC_OBSTACLE.toShort()
+                    fixtureDef.filter.maskBits = GM.MASK_BITS_STATIC_OBSTACLE.toShort()
+                }
+            }
+
+
 
             when (type) {
                 "Grass" -> fixtureDef.friction = 0.8f
                 "Sand" -> fixtureDef.friction = 1f
-                "Choco" -> fixtureDef.friction = 0.05f
+                "Choco" -> fixtureDef.friction = 0.01f
                 "Purple" -> fixtureDef.friction = 0.5f
                 else -> fixtureDef.friction = 0.8f
             }
@@ -196,7 +207,7 @@ object ObjBuilder {
 
     fun generateFloors(start: Float, height: Int, leftBound: Float, rightBound: Float, type: String = "Grass") {
 
-        var gap: Int  = MathUtils.random(4, 6)
+        var gap: Int = MathUtils.random(4, 6)
         var length: Int = MathUtils.random(4, 6)
 
         var x: Float = MathUtils.random(leftBound.toInt() + 1, rightBound.toInt() - length - 2) + 0.5f
@@ -223,23 +234,19 @@ object ObjBuilder {
         var floorType: String
         var wallType: String
 
-        if (start > -50f) {
+        if (start > -150f) {
             floorType = types[0]
             wallType = types[0]
-        }
-        else if (start > -100f) {
+        } else if (start > -300f) {
             floorType = types[1]
             wallType = types[1]
-        }
-        else if (start > -150f) {
+        } else if (start > -450f) {
             floorType = types[2]
             wallType = types[2]
-        }
-        else if (start > -200f) {
+        } else if (start > -600f) {
             floorType = types[3]
             wallType = types[3]
-        }
-        else {
+        } else {
             // random floor type
             floorType = types[MathUtils.random(0, types.size - 1)]
             wallType = "Purple"

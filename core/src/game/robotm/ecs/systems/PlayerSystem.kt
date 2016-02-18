@@ -87,7 +87,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
 
                         if (fixture.body === body) {
                             -1f
-                        } else if (fraction <= 1) {
+                        } else if (fraction <= 1 && fixture.filterData.categoryBits != GM.CATEGORY_BITS_STATIC_OBSTACLE_UNJUMPABLE.toShort()) {
                             inAir = false
                             0f
                         } else {
