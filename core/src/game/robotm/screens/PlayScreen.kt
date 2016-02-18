@@ -112,7 +112,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         // start location
         ObjBuilder.createFloor(-1.5f, -4.5f, 4)
         // fill initial wall holes
-        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, 9.5f, 5)
+        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, 9.5f, 14)
 
         camera.position.y = 0f
         nextFloorsAndWallGeneratingY = -4.5f
@@ -126,15 +126,19 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     }
 
     private fun generateFloorsAndWalls() {
-        ObjBuilder.generateFloors(start = nextFloorsAndWallGeneratingY, height = generatingInterval)
-        ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, nextFloorsAndWallGeneratingY + 9f, generatingInterval)
-
+        ObjBuilder.generateFloorsAndWalls(start = nextFloorsAndWallGeneratingY, height = generatingInterval)
         nextFloorsAndWallGeneratingY -= generatingInterval
     }
 
     private fun inputHandler() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
             showBox2DDebugRenderer = !showBox2DDebugRenderer
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            if (GM.gameOver) {
+                resetGame()
+            }
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
@@ -186,6 +190,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         }
 
         getReadyImage.isVisible = GM.getReady
+        gameOverImage.isVisible = GM.gameOver
         stage.draw()
     }
 
@@ -195,6 +200,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     }
 
     override fun dispose() {
+        stage.dispose()
         world.dispose()
         box2DDebugRenderer.dispose()
         assetManager.dispose()

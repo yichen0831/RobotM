@@ -5,14 +5,35 @@ filter: Linear,Linear
 repeat: none
 RobotM
   rotate: false
-  xy: 1, 67
+  xy: 1, 199
   size: 704, 48
   orig: 704, 48
   offset: 0, 0
   index: -1
-Grass
+Choco
+  rotate: false
+  xy: 1, 133
+  size: 384, 64
+  orig: 384, 64
+  offset: 0, 0
+  index: -1
+Purple
+  rotate: false
+  xy: 1, 67
+  size: 384, 64
+  orig: 384, 64
+  offset: 0, 0
+  index: -1
+Sand
   rotate: false
   xy: 1, 1
+  size: 384, 64
+  orig: 384, 64
+  offset: 0, 0
+  index: -1
+Grass
+  rotate: false
+  xy: 387, 133
   size: 384, 64
   orig: 384, 64
   offset: 0, 0

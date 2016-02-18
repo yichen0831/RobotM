@@ -46,7 +46,7 @@ object ObjBuilder {
         val edgeShape = EdgeShape()
         edgeShape.set(Vector2(-0.45f, -0.375f).scl(scale), Vector2(0.45f, -0.375f).scl(scale))
         fixtureDef.shape = edgeShape
-        fixtureDef.friction = 1f
+        fixtureDef.friction = 0.8f
         body.createFixture(fixtureDef)
         edgeShape.dispose()
 
@@ -162,6 +162,9 @@ object ObjBuilder {
 
             when (type) {
                 "Grass" -> fixtureDef.friction = 0.8f
+                "Sand" -> fixtureDef.friction = 1f
+                "Choco" -> fixtureDef.friction = 0.05f
+                "Purple" -> fixtureDef.friction = 0.5f
                 else -> fixtureDef.friction = 0.8f
             }
 
@@ -191,16 +194,19 @@ object ObjBuilder {
         }
     }
 
-    fun generateFloors(start: Float, height: Int) {
+    fun generateFloors(start: Float, height: Int, leftBound: Float, rightBound: Float, type: String = "Grass") {
 
         var gap: Int  = MathUtils.random(4, 6)
         var length: Int = MathUtils.random(4, 6)
 
-        var x: Float = MathUtils.random(-GM.SCREEN_WIDTH.toInt() / 2 + 1, GM.SCREEN_WIDTH.toInt() / 2 - length - 2) + 0.5f
+        var x: Float = MathUtils.random(leftBound.toInt() + 1, rightBound.toInt() - length - 2) + 0.5f
         var y: Float = MathUtils.floor(start) - gap + 0.5f
 
         while (y >= start - height) {
-            createFloor(x, y, length)
+
+            if (gap >= 5 || MathUtils.random() > 0.05f) {
+                createFloor(x, y, length, type)
+            }
 
             x = MathUtils.random(-GM.SCREEN_WIDTH.toInt() / 2 + 1, GM.SCREEN_WIDTH.toInt() / 2 - length - 2) + 0.5f
             y -= gap
@@ -208,6 +214,39 @@ object ObjBuilder {
             gap = MathUtils.random(4, 6)
             length = MathUtils.random(4, 6)
         }
+
+    }
+
+    fun generateFloorsAndWalls(start: Float, height: Int, left: Float = -GM.SCREEN_WIDTH / 2f + 0.5f, right: Float = GM.SCREEN_WIDTH / 2f - 0.5f) {
+        val types = arrayOf("Grass", "Sand", "Choco", "Purple")
+
+        var floorType: String
+        var wallType: String
+
+        if (start > -50f) {
+            floorType = types[0]
+            wallType = types[0]
+        }
+        else if (start > -100f) {
+            floorType = types[1]
+            wallType = types[1]
+        }
+        else if (start > -150f) {
+            floorType = types[2]
+            wallType = types[2]
+        }
+        else if (start > -200f) {
+            floorType = types[3]
+            wallType = types[3]
+        }
+        else {
+            // random floor type
+            floorType = types[MathUtils.random(0, types.size - 1)]
+            wallType = "Purple"
+        }
+
+        generateFloors(start, height, left, right, floorType)
+        createWall(left, right, start, height, wallType)
 
     }
 }
