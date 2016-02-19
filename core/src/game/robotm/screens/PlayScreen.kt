@@ -23,6 +23,7 @@ import game.robotm.RobotM
 import game.robotm.ecs.systems.*
 import game.robotm.gamesys.GM
 import game.robotm.gamesys.ObjBuilder
+import game.robotm.gamesys.WorldContactListener
 
 class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
@@ -82,6 +83,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         stage.addActor(getReadyImage)
 
         world = World(Vector2(0f, -16f), true)
+        world.setContactListener(WorldContactListener())
         engine = Engine()
 
         engine.addSystem(PlayerSystem())

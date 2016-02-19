@@ -7,4 +7,6 @@ class PlayerComponent: Component {
     val speed = 6f
     var hp = 100f
 
+    var lethalContactCount = 0
+    var hitCeiling = false
 }
