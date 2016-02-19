@@ -229,7 +229,20 @@ object ObjBuilder {
         while (y >= start - height) {
 
             if (gap >= 5 || MathUtils.random() > 0.05f) {
-                createFloor(x, y, length, type)
+
+                if (length >= 6 && MathUtils.randomBoolean(0.6f)) {
+
+                    length = MathUtils.random(2, 3)
+                    x = MathUtils.random(-GM.SCREEN_WIDTH.toInt() / 2 + 1, -length - 2) + 0.5f
+                    createFloor(x, y, length, type)
+
+                    length =MathUtils.random(2, 3)
+                    x = MathUtils.random(0, GM.SCREEN_WIDTH.toInt() / 2 - length - 2) + 0.5f
+                    createFloor(x, y, length, type)
+
+                } else {
+                    createFloor(x, y, length, type)
+                }
             }
 
             x = MathUtils.random(-GM.SCREEN_WIDTH.toInt() / 2 + 1, GM.SCREEN_WIDTH.toInt() / 2 - length - 2) + 0.5f
