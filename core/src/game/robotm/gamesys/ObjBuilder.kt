@@ -218,6 +218,26 @@ object ObjBuilder {
         }
     }
 
+    private fun shouldMakeSpike(y: Float): Boolean {
+        if (y > -150f) {
+            return MathUtils.randomBoolean(0.15f)
+        }
+
+        if (y > -300) {
+            return MathUtils.randomBoolean(0.15f)
+        }
+
+        if (y > -450) {
+            return MathUtils.randomBoolean(0.20f)
+        }
+
+        if (y > -600) {
+            return MathUtils.randomBoolean(0.20f)
+        }
+
+        return MathUtils.randomBoolean(0.25f)
+    }
+
     fun generateFloors(start: Float, height: Int, leftBound: Float, rightBound: Float, type: String = "Grass") {
 
         var gap: Int = MathUtils.random(4, 6)
@@ -236,12 +256,23 @@ object ObjBuilder {
                     x = MathUtils.random(-GM.SCREEN_WIDTH.toInt() / 2 + 1, -length - 2) + 0.5f
                     createFloor(x, y, length, type)
 
-                    length =MathUtils.random(2, 3)
+                    if (shouldMakeSpike(y)) {
+                        generateSpikes(x, y + 1, length)
+                    }
+
+                    length = MathUtils.random(2, 3)
                     x = MathUtils.random(0, GM.SCREEN_WIDTH.toInt() / 2 - length - 2) + 0.5f
                     createFloor(x, y, length, type)
 
+                    if (shouldMakeSpike(y)) {
+                        generateSpikes(x, y + 1, length)
+                    }
+
                 } else {
                     createFloor(x, y, length, type)
+                    if (shouldMakeSpike(y)) {
+                        generateSpikes(x, y + 1, length)
+                    }
                 }
             }
 
