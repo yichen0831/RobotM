@@ -117,8 +117,8 @@ object ObjBuilder {
 
         val fixtureDef = FixtureDef()
         fixtureDef.shape = shape
-        fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_STATIC_OBSTACLE.toShort()
-        fixtureDef.filter.maskBits = GM.MASK_BITS_STATIC_OBSTACLE.toShort()
+        fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_WALL.toShort()
+        fixtureDef.filter.maskBits = GM.MASK_BITS_WALL.toShort()
         fixtureDef.friction = 0f
 
         body.createFixture(fixtureDef)
@@ -173,12 +173,12 @@ object ObjBuilder {
 
             when (type) {
                 "Purple" -> {
-                    fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_STATIC_OBSTACLE_UNJUMPABLE.toShort()
-                    fixtureDef.filter.maskBits = GM.MAST_BITS_STATIC_OBSTACLE_UNJUMPABLE.toShort()
+                    fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_FLOOR_UNJUMPABLE.toShort()
+                    fixtureDef.filter.maskBits = GM.MAST_BITS_FLOOR_UNJUMPABLE.toShort()
                 }
                 else -> {
-                    fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_STATIC_OBSTACLE.toShort()
-                    fixtureDef.filter.maskBits = GM.MASK_BITS_STATIC_OBSTACLE.toShort()
+                    fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_FLOOR.toShort()
+                    fixtureDef.filter.maskBits = GM.MASK_BITS_FLOOR.toShort()
                 }
             }
 

@@ -73,12 +73,12 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
 
             body.fixtureList.forEach { fixture ->
                 val filterData = fixture.filterData
-                filterData.maskBits = GM.MASK_BITS_NOTHING.toShort()
+                filterData.maskBits = GM.MASK_BITS_AFTER_HTTING_CEILING.toShort()
                 fixture.filterData = filterData
             }
 
             if (playerComponent.hitCeilingCountDown <= 0) {
-                playerComponent.hitCeilingCountDown = 0.5f
+                playerComponent.hitCeilingCountDown = PlayerComponent.HIT_CEILING_COUNT_DOWN
                 playerComponent.hitCeiling = false
                 body.fixtureList.forEach { fixture ->
                     val filterData = fixture.filterData
@@ -88,10 +88,25 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
             }
         }
 
-        if (body.position.y < GM.cameraY - GM.SCREEN_HEIGHT / 2f - 1f) {
-            GM.gameOver = true
+        if (playerComponent.lethalContactCount > 0) {
+            playerComponent.hp -= PlayerComponent.DAMAGE_PER_SECOND * deltaTime
+
+            playerComponent.hp_regeneration_cd = PlayerComponent.HP_REGENERATION_COLD_DURATION
+        } else {
+
+            playerComponent.hp_regeneration_cd -= deltaTime
+            if (playerComponent.hp_regeneration_cd <= 0 && !GM.gameOver) {
+                playerComponent.hp = Math.min(PlayerComponent.FULL_HP, playerComponent.hp + PlayerComponent.HP_REGENERATION_PER_SECOND * deltaTime)
+            }
         }
 
+        if (body.position.y < GM.cameraY - GM.SCREEN_HEIGHT / 2f - 1f) {
+            playerComponent.hp = 0f
+        }
+
+        if (playerComponent.hp <= 0) {
+            GM.gameOver = true
+        }
     }
 
     private fun checkPlayerInAirAndCanJump(body: Body) {
@@ -114,7 +129,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
                             -1f
                         } else if (fraction <= 1) {
                             playerInAir = false
-                            playerCanJump = if (fixture.filterData.categoryBits != GM.CATEGORY_BITS_STATIC_OBSTACLE_UNJUMPABLE.toShort()) true else false
+                            playerCanJump = if (fixture.filterData.categoryBits != GM.CATEGORY_BITS_FLOOR_UNJUMPABLE.toShort()) true else false
                             0f
                         } else {
                             fraction
