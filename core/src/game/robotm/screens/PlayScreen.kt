@@ -20,10 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.FitViewport
 import game.robotm.RobotM
-import game.robotm.ecs.systems.AnimationSystem
-import game.robotm.ecs.systems.PhysicsSystem
-import game.robotm.ecs.systems.PlayerSystem
-import game.robotm.ecs.systems.RenderSystem
+import game.robotm.ecs.systems.*
 import game.robotm.gamesys.GM
 import game.robotm.gamesys.ObjBuilder
 
@@ -88,6 +85,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         engine = Engine()
 
         engine.addSystem(PlayerSystem())
+        engine.addSystem(FollowCameraSystem(camera))
         engine.addSystem(PhysicsSystem())
         engine.addSystem(AnimationSystem())
         engine.addSystem(RenderSystem(batch))
@@ -118,6 +116,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         nextFloorsAndWallGeneratingY = -4.5f
 
         generateFloorsAndWalls()
+        ObjBuilder.generateRingSaws(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, 4.5f, 16)
 
         readyCountDown = 3f
 

@@ -8,7 +8,7 @@ object GM {
     val SCREEN_WIDTH = 16f
     val SCREEN_HEIGHT = 20f
 
-    val PLAYER_SCALE = 1.5f
+    val PLAYER_SCALE = 1f
 
     val CATEGORY_BITS_STATIC_OBSTACLE: Int = 1
     val CATEGORY_BITS_STATIC_OBSTACLE_UNJUMPABLE: Int = 1 shl 1

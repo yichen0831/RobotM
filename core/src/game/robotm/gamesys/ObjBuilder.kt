@@ -45,14 +45,14 @@ object ObjBuilder {
 
         val edgeShape = EdgeShape()
         // sides
-        edgeShape.set(Vector2(-0.45f, 0.3f).scl(scale), Vector2(-0.45f, -0.375f).scl(scale))
+        edgeShape.set(Vector2(-0.45f, 0.3f).scl(scale), Vector2(-0.45f, -0.37f).scl(scale))
         fixtureDef.shape = edgeShape
         fixtureDef.friction = 0f
         fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_PLAYER.toShort()
         fixtureDef.filter.maskBits = GM.MASK_BITS_PLAYER.toShort()
         body.createFixture(fixtureDef)
 
-        edgeShape.set(Vector2(0.45f, 0.3f).scl(scale), Vector2(0.45f, -0.375f).scl(scale))
+        edgeShape.set(Vector2(0.45f, 0.3f).scl(scale), Vector2(0.45f, -0.37f).scl(scale))
         fixtureDef.shape = edgeShape
         body.createFixture(fixtureDef)
 
@@ -95,7 +95,7 @@ object ObjBuilder {
         val entity = Entity()
         entity.add(PlayerComponent())
         entity.add(PhysicsComponent(body))
-        entity.add(RendererComponent(TextureRegion(textureRegion, 64 * 3, 0, 64, 48), 64 / GM.PPM * scale, 48 / GM.PPM * scale))
+        entity.add(RendererComponent(TextureRegion(textureRegion, 64 * 3, 0, 64, 48), 64 / GM.PPM * scale, 48 / GM.PPM * scale, renderOrder = 2))
         entity.add(AnimationComponent(animations, "idle"))
         entity.add(TransformComponent(x, y))
 
@@ -147,7 +147,7 @@ object ObjBuilder {
             entity = Entity()
             entity.add(TransformComponent(right, top - i))
             entity.add(PhysicsComponent(body))
-            entity.add(RendererComponent(textureRegion, 1f, 1f))
+            entity.add(RendererComponent(textureRegion, 1f, 1f, renderOrder = 3))
             body.userData = entity
             engine!!.addEntity(entity)
 
@@ -210,7 +210,7 @@ object ObjBuilder {
             val entity = Entity()
             entity.add(TransformComponent(x + i, y))
             entity.add(PhysicsComponent(body))
-            entity.add(RendererComponent(textureRegion, 1f, 1f))
+            entity.add(RendererComponent(textureRegion, 1f, 1f, renderOrder = 1))
 
             engine!!.addEntity(entity)
 
@@ -270,11 +270,55 @@ object ObjBuilder {
 
     }
 
-    fun createSpike(x: Float, y: Float) {
+    fun createRingSaw(x: Float, y: Float) {
+
+        val bodyDef = BodyDef()
+        bodyDef.type = BodyDef.BodyType.KinematicBody
+        bodyDef.position.set(x, y)
+
+        val body = world!!.createBody(bodyDef)
+
+        val polygonShape = PolygonShape()
+        polygonShape.setAsBox(0.5f, 0.25f, Vector2(0f, 0.25f), 0f)
+
+        val fixtureDef = FixtureDef()
+        fixtureDef.shape = polygonShape
+        fixtureDef.isSensor = true
+        fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_LETHAL.toShort()
+        fixtureDef.filter.maskBits = GM.MASK_BITS_LETHAL.toShort()
+
+        body.createFixture(fixtureDef)
+        polygonShape.dispose()
+
+
+        val textureAtlas = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java)
+        val textureRegion = textureAtlas.findRegion("Spin")
+
+        val keyFrames = Array<TextureRegion>()
+        keyFrames.add(TextureRegion(textureRegion, 0, 0, 64, 64))
+        keyFrames.add(TextureRegion(textureRegion, 64, 0, 64, 64))
+
+        val animation = Animation(0.1f, keyFrames, Animation.PlayMode.LOOP)
+
+        val anims = HashMap<String, Animation>()
+        anims.put("sawing", animation)
+
+        val entity = Entity()
+        entity.add(TransformComponent(x, y))
+        entity.add(PhysicsComponent(body))
+        entity.add(RendererComponent(TextureRegion(textureRegion, 0, 0, 64, 64), 1f, 1f, originX = 0.5f, originY = 0.5f, renderOrder = 5))
+        entity.add(AnimationComponent(anims, "sawing"))
+        entity.add(FollowCameraComponent(x, y))
+
+        body.userData = entity
+        engine!!.addEntity(entity)
 
     }
 
-    fun generateSpike(x: Float, y: Float, length: Int) {
+    fun generateRingSaws(x: Float, y: Float, length: Int) {
 
+        for (i in 0..length - 1) {
+            createRingSaw(x + i, y)
+        }
     }
 }
