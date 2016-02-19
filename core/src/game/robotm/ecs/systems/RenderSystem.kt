@@ -15,8 +15,12 @@ class RenderSystem(val batch: SpriteBatch) : IteratingSystem(Family.all(Renderer
     val transformM = ComponentMapper.getFor(TransformComponent::class.java)
 
     override fun update(deltaTime: Float) {
+
         batch.begin()
-        entities.forEach { processEntity(it, deltaTime) }
+        entities.sortedBy { entity ->
+            val rendererComponent = renderM.get(entity)
+            rendererComponent.renderOrder
+        }.forEach { processEntity(it, deltaTime) }
         batch.end()
     }
 
