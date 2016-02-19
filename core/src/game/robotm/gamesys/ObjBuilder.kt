@@ -15,6 +15,13 @@ import java.util.*
 
 
 object ObjBuilder {
+    /* Render Order
+     * Floor: 2 (first / bottom)
+     * Player: 3
+     * Spike, Spring: 4
+     * Wall: 5
+     * Ceiling & Ring-saw: 6 (last / top)
+     */
 
     var assetManager: AssetManager? = null
     var world: World? = null
@@ -149,7 +156,7 @@ object ObjBuilder {
             entity = Entity()
             entity.add(TransformComponent(right, top - i))
             entity.add(PhysicsComponent(body))
-            entity.add(RendererComponent(textureRegion, 1f, 1f, renderOrder = 4))
+            entity.add(RendererComponent(textureRegion, 1f, 1f, renderOrder = 5))
             body.userData = entity
             engine!!.addEntity(entity)
 
@@ -235,7 +242,48 @@ object ObjBuilder {
             return MathUtils.randomBoolean(0.20f)
         }
 
-        return MathUtils.randomBoolean(0.25f)
+        if (y > -750) {
+            return MathUtils.randomBoolean(0.25f)
+        }
+
+        if (y > -900) {
+            return MathUtils.randomBoolean(0.25f)
+        }
+        if (y > -1000) {
+            return MathUtils.randomBoolean(0.3f)
+        }
+        return MathUtils.randomBoolean(0.4f)
+    }
+
+    private fun shouldMakeSpring(y: Float): Boolean {
+        if (y > -150f) {
+            return MathUtils.randomBoolean(0.1f)
+        }
+
+        if (y > -300) {
+            return MathUtils.randomBoolean(0.15f)
+        }
+
+        if (y > -450) {
+            return MathUtils.randomBoolean(0.15f)
+        }
+
+        if (y > -600) {
+            return MathUtils.randomBoolean(0.20f)
+        }
+
+        if (y > -750) {
+            return MathUtils.randomBoolean(0.25f)
+        }
+
+        if (y > -900) {
+            return MathUtils.randomBoolean(0.25f)
+        }
+
+        if (y > -1000) {
+            return MathUtils.randomBoolean(0.3f)
+        }
+        return MathUtils.randomBoolean(0.4f)
     }
 
     fun generateFloors(start: Float, height: Int, leftBound: Float, rightBound: Float, type: String = "Grass") {
@@ -259,6 +307,9 @@ object ObjBuilder {
                     if (shouldMakeSpike(y)) {
                         generateSpikes(x, y + 1, length)
                     }
+                    else if (shouldMakeSpring(y)) {
+                        generateSprings(x, y + 1, length)
+                    }
 
                     length = MathUtils.random(2, 3)
                     x = MathUtils.random(0, GM.SCREEN_WIDTH.toInt() / 2 - length - 2) + 0.5f
@@ -266,12 +317,16 @@ object ObjBuilder {
 
                     if (shouldMakeSpike(y)) {
                         generateSpikes(x, y + 1, length)
+                    } else if (shouldMakeSpring(y)) {
+                        generateSprings(x, y + 1, length)
                     }
 
                 } else {
                     createFloor(x, y, length, type)
                     if (shouldMakeSpike(y)) {
                         generateSpikes(x, y + 1, length)
+                    } else if (shouldMakeSpring(y)) {
+                        generateSprings(x, y + 1, length)
                     }
                 }
             }
@@ -349,7 +404,7 @@ object ObjBuilder {
         val entity = Entity()
         entity.add(TransformComponent(x, y))
         entity.add(PhysicsComponent(body))
-        entity.add(RendererComponent(TextureRegion(textureRegion, 0, 0, 64, 64), 1f, 1f, originX = 0.5f, originY = 0.5f, renderOrder = 5))
+        entity.add(RendererComponent(TextureRegion(textureRegion, 0, 0, 64, 64), 1f, 1f, originX = 0.5f, originY = 0.5f, renderOrder = 6))
         entity.add(AnimationComponent(anims, "sawing"))
         entity.add(FollowCameraComponent(x, y))
 
@@ -390,7 +445,7 @@ object ObjBuilder {
         entity.add(TransformComponent(x, y))
         entity.add(PhysicsComponent(body))
         entity.add(FollowCameraComponent(x, y))
-        entity.add(RendererComponent(TextureRegion(textureRegion, 64 * 5, 0, 64, 64), 1f, 1f, renderOrder = 5))
+        entity.add(RendererComponent(TextureRegion(textureRegion, 64 * 5, 0, 64, 64), 1f, 1f, renderOrder = 6))
 
         engine!!.addEntity(entity)
         body.userData = entity
@@ -437,6 +492,57 @@ object ObjBuilder {
     fun generateSpikes(x: Float, y: Float, length: Int) {
         for (i in 0..length - 1) {
             createSpike(x + i, y)
+        }
+    }
+
+    fun createSpring(x: Float, y: Float) {
+        val bodyDef = BodyDef()
+        bodyDef.type = BodyDef.BodyType.KinematicBody
+        bodyDef.position.set(x, y)
+
+        val body = world!!.createBody(bodyDef)
+
+        val polygonShape = PolygonShape()
+        polygonShape.setAsBox(0.5f, 0.25f, tmpVec1.set(0f, -0.25f), 0f)
+
+        val fixtureDef = FixtureDef()
+        fixtureDef.shape = polygonShape
+        fixtureDef.isSensor = true
+        fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_SPRING.toShort()
+        fixtureDef.filter.maskBits = GM.MASK_BITS_SPRING.toShort()
+
+        body.createFixture(fixtureDef)
+        polygonShape.dispose()
+
+        val textureRegion = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java).findRegion("Spring")
+
+        var animation: Animation
+        val anims = HashMap<String, Animation>()
+
+        val keyFrames = Array<TextureRegion>()
+        keyFrames.add(TextureRegion(textureRegion, 0, 0, 64, 64))
+        animation = Animation(0.1f, keyFrames, Animation.PlayMode.NORMAL)
+        anims.put("normal", animation)
+
+        keyFrames.clear()
+        keyFrames.add(TextureRegion(textureRegion, 64, 0, 64, 64))
+        animation = Animation(0.1f, keyFrames, Animation.PlayMode.NORMAL)
+        anims.put("hit", animation)
+
+        val entity = Entity()
+        entity.add(TransformComponent(x, y))
+        entity.add(InteractionComponent(InteractionType.SPRING))
+        entity.add(PhysicsComponent(body))
+        entity.add(AnimationComponent(anims, "normal"))
+        entity.add(RendererComponent(TextureRegion(textureRegion, 0, 0, 64, 64), 1f, 1f, renderOrder = 4))
+
+        engine!!.addEntity(entity)
+        body.userData = entity
+    }
+
+    fun generateSprings(x: Float, y: Float, length: Int) {
+        for (i in 0..length - 1) {
+            createSpring(x + i, y)
         }
     }
 }

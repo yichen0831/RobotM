@@ -17,11 +17,14 @@ class PlayerComponent: Component {
     }
 
     val speed = 6f
+    var jumpForce = 8f
 
     var hp = FULL_HP
     var hp_regeneration_cd = HP_REGENERATION_COLD_DURATION
 
     var lethalContactCount = 0
+
+    var hitSpring = false
 
     var hitCeiling = false
     var hitCeilingCountDown = HIT_CEILING_COUNT_DOWN

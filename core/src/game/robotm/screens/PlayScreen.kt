@@ -88,6 +88,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         engine.addSystem(PlayerSystem())
         engine.addSystem(FollowCameraSystem(camera))
+        engine.addSystem(InteractionSystem())
         engine.addSystem(PhysicsSystem())
         engine.addSystem(AnimationSystem())
         engine.addSystem(RenderSystem(batch))

@@ -42,7 +42,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         if (!GM.gameOver && !GM.getReady) {
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && playerCanJump) {
-                body.applyLinearImpulse(tmpVec1.set(0f, 8f - body.linearVelocity.y).scl(body.mass), body.worldCenter, true)
+                body.applyLinearImpulse(tmpVec1.set(0f, playerComponent.jumpForce - body.linearVelocity.y).scl(body.mass), body.worldCenter, true)
             } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 body.applyLinearImpulse(tmpVec1.set(-playerComponent.speed - body.linearVelocity.x, 0f).scl(body.mass), body.worldCenter, true)
                 playerMoving = true
@@ -73,7 +73,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
 
             body.fixtureList.forEach { fixture ->
                 val filterData = fixture.filterData
-                filterData.maskBits = GM.MASK_BITS_AFTER_HTTING_CEILING.toShort()
+                filterData.maskBits = GM.MASK_BITS_PLAYER_AFTER_HTTING_CEILING.toShort()
                 fixture.filterData = filterData
             }
 
@@ -98,6 +98,11 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
             if (playerComponent.hp_regeneration_cd <= 0 && !GM.gameOver) {
                 playerComponent.hp = Math.min(PlayerComponent.FULL_HP, playerComponent.hp + PlayerComponent.HP_REGENERATION_PER_SECOND * deltaTime)
             }
+        }
+
+        if (playerComponent.hitSpring) {
+            body.applyLinearImpulse(tmpVec1.set(0f, playerComponent.jumpForce - body.linearVelocity.y).scl(body.mass), body.worldCenter, true)
+            playerComponent.hitSpring = false
         }
 
         if (body.position.y < GM.cameraY - GM.SCREEN_HEIGHT / 2f - 1f) {

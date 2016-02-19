@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.Contact
 import com.badlogic.gdx.physics.box2d.ContactImpulse
 import com.badlogic.gdx.physics.box2d.ContactListener
 import com.badlogic.gdx.physics.box2d.Manifold
+import game.robotm.ecs.components.InteractionComponent
 import game.robotm.ecs.components.PlayerComponent
 
 
@@ -28,6 +29,12 @@ class WorldContactListener : ContactListener {
                     GM.CATEGORY_BITS_CEILING.toShort() -> {
                         playerComponent.hitCeiling = true
                     }
+                    GM.CATEGORY_BITS_SPRING.toShort() -> {
+                        playerComponent.hitSpring = true
+                        val springEntity: Entity = fixtureB.body.userData as Entity
+                        val interactionComponent = springEntity.getComponent(InteractionComponent::class.java)
+                        interactionComponent.status = "hit"
+                    }
                 }
             } else {
                 val playerEntity: Entity = fixtureB.body.userData as Entity
@@ -39,6 +46,12 @@ class WorldContactListener : ContactListener {
                     }
                     GM.CATEGORY_BITS_CEILING.toShort() -> {
                         playerComponent.hitCeiling = true
+                    }
+                    GM.CATEGORY_BITS_SPRING.toShort() -> {
+                        playerComponent.hitSpring = true
+                        val springEntity: Entity = fixtureA.body.userData as Entity
+                        val interactionComponent = springEntity.getComponent(InteractionComponent::class.java)
+                        interactionComponent.status = "hit"
                     }
                 }
             }
