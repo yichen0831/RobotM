@@ -45,14 +45,14 @@ object ObjBuilder {
 
         val edgeShape = EdgeShape()
         // sides
-        edgeShape.set(Vector2(-0.45f, 0.3f).scl(scale), Vector2(-0.45f, -0.37f).scl(scale))
+        edgeShape.set(Vector2(-0.45f, 0.3f).scl(scale), Vector2(-0.45f, -0.36f).scl(scale))
         fixtureDef.shape = edgeShape
         fixtureDef.friction = 0f
         fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_PLAYER.toShort()
         fixtureDef.filter.maskBits = GM.MASK_BITS_PLAYER.toShort()
         body.createFixture(fixtureDef)
 
-        edgeShape.set(Vector2(0.45f, 0.3f).scl(scale), Vector2(0.45f, -0.37f).scl(scale))
+        edgeShape.set(Vector2(0.45f, 0.3f).scl(scale), Vector2(0.45f, -0.36f).scl(scale))
         fixtureDef.shape = edgeShape
         body.createFixture(fixtureDef)
 
@@ -319,6 +319,44 @@ object ObjBuilder {
 
         for (i in 0..length - 1) {
             createRingSaw(x + i, y)
+        }
+    }
+
+    fun createCeiling(x: Float, y: Float) {
+
+        val bodyDef = BodyDef()
+        bodyDef.position.set(x, y)
+        bodyDef.type = BodyDef.BodyType.KinematicBody
+
+        val body = world!!.createBody(bodyDef)
+
+        val polygonShape = PolygonShape()
+        polygonShape.setAsBox(0.5f, 0.5f)
+
+        val fixtureDef = FixtureDef()
+        fixtureDef.shape = polygonShape
+        fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_CEILING.toShort()
+        fixtureDef.filter.maskBits = GM.MASK_BITS_CEILING.toShort()
+
+        body.createFixture(fixtureDef)
+        polygonShape.dispose()
+
+        val textureAtlas = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java)
+        val textureRegion = textureAtlas.findRegion("Purple")
+
+        val entity = Entity()
+        entity.add(TransformComponent(x, y))
+        entity.add(PhysicsComponent(body))
+        entity.add(FollowCameraComponent(x, y))
+        entity.add(RendererComponent(TextureRegion(textureRegion, 64 * 5, 0, 64, 64), 1f, 1f, renderOrder = 5))
+
+        engine!!.addEntity(entity)
+        body.userData = entity
+    }
+
+    fun generateCeilings(x: Float, y: Float, length: Int) {
+        for (i in 0..length - 1) {
+            createCeiling(x + i, y)
         }
     }
 }
