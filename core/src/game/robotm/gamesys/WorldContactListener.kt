@@ -23,8 +23,10 @@ class WorldContactListener : ContactListener {
 
                 when (fixtureB.filterData.categoryBits) {
                     GM.CATEGORY_BITS_LETHAL.toShort() -> {
-
                         playerComponent.lethalContactCount++
+                    }
+                    GM.CATEGORY_BITS_CEILING.toShort() -> {
+                        playerComponent.hitCeiling = true
                     }
                 }
             } else {
@@ -33,8 +35,10 @@ class WorldContactListener : ContactListener {
 
                 when (fixtureA.filterData.categoryBits) {
                     GM.CATEGORY_BITS_LETHAL.toShort() -> {
-
                         playerComponent.lethalContactCount++
+                    }
+                    GM.CATEGORY_BITS_CEILING.toShort() -> {
+                        playerComponent.hitCeiling = true
                     }
                 }
             }

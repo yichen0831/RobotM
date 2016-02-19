@@ -36,6 +36,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         val rendererComponent = rendererM.get(entity)
 
         checkPlayerInAirAndCanJump(body)
+        playerCanJump = playerCanJump and !playerComponent.hitCeiling
 
         var playerMoving = false
         if (!GM.gameOver && !GM.getReady) {
@@ -64,6 +65,26 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
                 animationComponent.currentAnim = "move"
             } else {
                 animationComponent.currentAnim = "idle"
+            }
+        }
+
+        if (playerComponent.hitCeiling) {
+            playerComponent.hitCeilingCountDown -= deltaTime
+
+            body.fixtureList.forEach { fixture ->
+                val filterData = fixture.filterData
+                filterData.maskBits = GM.MASK_BITS_NOTHING.toShort()
+                fixture.filterData = filterData
+            }
+
+            if (playerComponent.hitCeilingCountDown <= 0) {
+                playerComponent.hitCeilingCountDown = 0.5f
+                playerComponent.hitCeiling = false
+                body.fixtureList.forEach { fixture ->
+                    val filterData = fixture.filterData
+                    filterData.maskBits = GM.MASK_BITS_PLAYER.toShort()
+                    fixture.filterData = filterData
+                }
             }
         }
 

@@ -8,5 +8,7 @@ class PlayerComponent: Component {
     var hp = 100f
 
     var lethalContactCount = 0
+
     var hitCeiling = false
+    var hitCeilingCountDown = 0.5f
 }
