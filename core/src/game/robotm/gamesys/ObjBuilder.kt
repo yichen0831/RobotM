@@ -20,6 +20,9 @@ object ObjBuilder {
     var world: World? = null
     var engine: Engine? = null
 
+    val tmpVec1 = Vector2()
+    val tmpVec2 = Vector2()
+
     fun createPlayer(x: Float, y: Float) {
 
         val scale = GM.PLAYER_SCALE
@@ -45,26 +48,25 @@ object ObjBuilder {
 
         val edgeShape = EdgeShape()
         // sides
-        edgeShape.set(Vector2(-0.45f, 0.3f).scl(scale), Vector2(-0.45f, -0.36f).scl(scale))
+        edgeShape.set(tmpVec1.set(-0.45f, 0.3f).scl(scale), tmpVec2.set(-0.45f, -0.36f).scl(scale))
         fixtureDef.shape = edgeShape
         fixtureDef.friction = 0f
         fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_PLAYER.toShort()
         fixtureDef.filter.maskBits = GM.MASK_BITS_PLAYER.toShort()
         body.createFixture(fixtureDef)
 
-        edgeShape.set(Vector2(0.45f, 0.3f).scl(scale), Vector2(0.45f, -0.36f).scl(scale))
+        edgeShape.set(tmpVec1.set(0.45f, 0.3f).scl(scale), tmpVec2.set(0.45f, -0.36f).scl(scale))
         fixtureDef.shape = edgeShape
         body.createFixture(fixtureDef)
 
         // feet
-        edgeShape.set(Vector2(-0.45f, -0.375f).scl(scale), Vector2(0.45f, -0.375f).scl(scale))
+        edgeShape.set(tmpVec1.set(-0.45f, -0.375f).scl(scale), tmpVec2.set(0.45f, -0.375f).scl(scale))
         fixtureDef.shape = edgeShape
         fixtureDef.friction = 0.8f
         body.createFixture(fixtureDef)
         edgeShape.dispose()
 
-        val textureAtlas = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java)
-        val textureRegion = textureAtlas.findRegion("RobotM")
+        val textureRegion = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java).findRegion("RobotM")
 
         val animations = HashMap<String, Animation>()
         var anim: Animation
@@ -95,7 +97,7 @@ object ObjBuilder {
         val entity = Entity()
         entity.add(PlayerComponent())
         entity.add(PhysicsComponent(body))
-        entity.add(RendererComponent(TextureRegion(textureRegion, 64 * 3, 0, 64, 48), 64 / GM.PPM * scale, 48 / GM.PPM * scale, renderOrder = 2))
+        entity.add(RendererComponent(TextureRegion(textureRegion, 64 * 3, 0, 64, 48), 64 / GM.PPM * scale, 48 / GM.PPM * scale, renderOrder = 3))
         entity.add(AnimationComponent(animations, "idle"))
         entity.add(TransformComponent(x, y))
 
@@ -147,7 +149,7 @@ object ObjBuilder {
             entity = Entity()
             entity.add(TransformComponent(right, top - i))
             entity.add(PhysicsComponent(body))
-            entity.add(RendererComponent(textureRegion, 1f, 1f, renderOrder = 3))
+            entity.add(RendererComponent(textureRegion, 1f, 1f, renderOrder = 4))
             body.userData = entity
             engine!!.addEntity(entity)
 
@@ -182,8 +184,6 @@ object ObjBuilder {
                 }
             }
 
-
-
             when (type) {
                 "Grass" -> fixtureDef.friction = 0.8f
                 "Sand" -> fixtureDef.friction = 1f
@@ -210,7 +210,7 @@ object ObjBuilder {
             val entity = Entity()
             entity.add(TransformComponent(x + i, y))
             entity.add(PhysicsComponent(body))
-            entity.add(RendererComponent(textureRegion, 1f, 1f, renderOrder = 1))
+            entity.add(RendererComponent(textureRegion, 1f, 1f, renderOrder = 2))
 
             engine!!.addEntity(entity)
 
@@ -292,7 +292,7 @@ object ObjBuilder {
         val body = world!!.createBody(bodyDef)
 
         val polygonShape = PolygonShape()
-        polygonShape.setAsBox(0.5f, 0.25f, Vector2(0f, 0.25f), 0f)
+        polygonShape.setAsBox(0.5f, 0.25f, tmpVec1.set(0f, 0.25f), 0f)
 
         val fixtureDef = FixtureDef()
         fixtureDef.shape = polygonShape
@@ -304,8 +304,7 @@ object ObjBuilder {
         polygonShape.dispose()
 
 
-        val textureAtlas = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java)
-        val textureRegion = textureAtlas.findRegion("Spin")
+        val textureRegion = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java).findRegion("Spin")
 
         val keyFrames = Array<TextureRegion>()
         keyFrames.add(TextureRegion(textureRegion, 0, 0, 64, 64))
@@ -354,8 +353,7 @@ object ObjBuilder {
         body.createFixture(fixtureDef)
         polygonShape.dispose()
 
-        val textureAtlas = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java)
-        val textureRegion = textureAtlas.findRegion("Purple")
+        val textureRegion = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java).findRegion("Purple")
 
         val entity = Entity()
         entity.add(TransformComponent(x, y))
@@ -370,6 +368,44 @@ object ObjBuilder {
     fun generateCeilings(x: Float, y: Float, length: Int) {
         for (i in 0..length - 1) {
             createCeiling(x + i, y)
+        }
+    }
+
+    fun createSpike(x: Float, y: Float) {
+
+        val bodyDef = BodyDef()
+        bodyDef.type = BodyDef.BodyType.StaticBody
+        bodyDef.position.set(x, y)
+
+        val body = world!!.createBody(bodyDef)
+
+        val polygonShape = PolygonShape()
+        polygonShape.setAsBox(0.5f, 0.25f, tmpVec1.set(0f, -0.25f), 0f)
+
+        val fixtureDef = FixtureDef()
+        fixtureDef.shape = polygonShape
+        fixtureDef.isSensor = true
+        fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_LETHAL.toShort()
+        fixtureDef.filter.maskBits = GM.MASK_BITS_LETHAL.toShort()
+
+        body.createFixture(fixtureDef)
+        polygonShape.dispose()
+
+        val textureRegion = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java).findRegion("Spikes")
+
+        val entity = Entity()
+        entity.add(TransformComponent(x, y))
+        entity.add(PhysicsComponent(body))
+        entity.add(RendererComponent(textureRegion, 1.0f, 1.0f, renderOrder = 4))
+
+        engine!!.addEntity(entity)
+
+        body.userData = entity
+    }
+
+    fun generateSpikes(x: Float, y: Float, length: Int) {
+        for (i in 0..length - 1) {
+            createSpike(x + i, y)
         }
     }
 }
