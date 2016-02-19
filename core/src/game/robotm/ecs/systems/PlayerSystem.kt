@@ -25,6 +25,9 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
     val tmpVec1 = Vector2()
     val tmpVec2 = Vector2()
 
+    var playerCanJump = false
+    var playerInAir = false
+
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val playerComponent = playerM.get(entity)
         val physicComponent = physicM.get(entity)
@@ -32,13 +35,13 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         val animationComponent = animM.get(entity)
         val rendererComponent = rendererM.get(entity)
 
-        val playerInAir = checkPlayerInAir(body)
+        checkPlayerInAirAndCanJump(body)
 
         var playerMoving = false
         if (!GM.gameOver && !GM.getReady) {
 
-            if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && !playerInAir) {
-                body.applyLinearImpulse(tmpVec1.set(0f, 8f).scl(body.mass), body.worldCenter, true)
+            if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && playerCanJump) {
+                body.applyLinearImpulse(tmpVec1.set(0f, 8f - body.linearVelocity.y).scl(body.mass), body.worldCenter, true)
             } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 body.applyLinearImpulse(tmpVec1.set(-playerComponent.speed - body.linearVelocity.x, 0f).scl(body.mass), body.worldCenter, true)
                 playerMoving = true
@@ -70,8 +73,9 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
 
     }
 
-    private fun checkPlayerInAir(body: Body): Boolean {
-        var inAir = true
+    private fun checkPlayerInAirAndCanJump(body: Body) {
+        playerCanJump = false
+        playerInAir = true
 
         val world = body.world
         val x = body.position.x
@@ -87,16 +91,15 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
 
                         if (fixture.body === body) {
                             -1f
-                        } else if (fraction <= 1 && fixture.filterData.categoryBits != GM.CATEGORY_BITS_STATIC_OBSTACLE_UNJUMPABLE.toShort()) {
-                            inAir = false
+                        } else if (fraction <= 1) {
+                            playerInAir = false
+                            playerCanJump = if (fixture.filterData.categoryBits != GM.CATEGORY_BITS_STATIC_OBSTACLE_UNJUMPABLE.toShort()) true else false
                             0f
                         } else {
                             fraction
                         }
                     }, tmpVec1, tmpVec2)
         }
-
-        return inAir
     }
 
 }

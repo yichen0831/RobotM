@@ -32,7 +32,7 @@ object ObjBuilder {
         val body = world!!.createBody(bodyDef)
 
         val boxShape = PolygonShape()
-        boxShape.setAsBox(0.45f * scale, 0.3f * scale)
+        boxShape.setAsBox(0.3f * scale, 0.3f * scale)
         val fixtureDef = FixtureDef()
         fixtureDef.shape = boxShape
         fixtureDef.density = 0.5f
@@ -44,6 +44,19 @@ object ObjBuilder {
         boxShape.dispose()
 
         val edgeShape = EdgeShape()
+        // sides
+        edgeShape.set(Vector2(-0.45f, 0.3f).scl(scale), Vector2(-0.45f, -0.375f).scl(scale))
+        fixtureDef.shape = edgeShape
+        fixtureDef.friction = 0f
+        fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_PLAYER.toShort()
+        fixtureDef.filter.maskBits = GM.MASK_BITS_PLAYER.toShort()
+        body.createFixture(fixtureDef)
+
+        edgeShape.set(Vector2(0.45f, 0.3f).scl(scale), Vector2(0.45f, -0.375f).scl(scale))
+        fixtureDef.shape = edgeShape
+        body.createFixture(fixtureDef)
+
+        // feet
         edgeShape.set(Vector2(-0.45f, -0.375f).scl(scale), Vector2(0.45f, -0.375f).scl(scale))
         fixtureDef.shape = edgeShape
         fixtureDef.friction = 0.8f
@@ -159,7 +172,7 @@ object ObjBuilder {
             fixtureDef.shape = shape
 
             when (type) {
-                "Choco" -> {
+                "Purple" -> {
                     fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_STATIC_OBSTACLE_UNJUMPABLE.toShort()
                     fixtureDef.filter.maskBits = GM.MAST_BITS_STATIC_OBSTACLE_UNJUMPABLE.toShort()
                 }
@@ -254,6 +267,14 @@ object ObjBuilder {
 
         generateFloors(start, height, left, right, floorType)
         createWall(left, right, start, height, wallType)
+
+    }
+
+    fun createSpike(x: Float, y: Float) {
+
+    }
+
+    fun generateSpike(x: Float, y: Float, length: Int) {
 
     }
 }
