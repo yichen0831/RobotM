@@ -24,6 +24,7 @@ import game.robotm.ecs.systems.*
 import game.robotm.gamesys.GM
 import game.robotm.gamesys.ObjBuilder
 import game.robotm.gamesys.WorldContactListener
+import game.robotm.gui.InfoBoard
 
 class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
@@ -49,6 +50,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     lateinit var gameOverImage: Image
     lateinit var getReadyImage: Image
 
+    lateinit var infoBoard: InfoBoard
+
     var readyCountDown = 3f
 
     val box2DDebugRenderer = Box2DDebugRenderer()
@@ -60,6 +63,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         assetManager.load("img/backgrounds/blue_grass.png", Texture::class.java)
         assetManager.load("img/textGameOver.png", Texture::class.java)
         assetManager.load("img/textGetReady.png", Texture::class.java)
+        assetManager.load("img/gui.atlas", TextureAtlas::class.java)
         assetManager.finishLoading()
 
         camera = OrthographicCamera()
@@ -92,6 +96,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         engine.addSystem(PhysicsSystem())
         engine.addSystem(AnimationSystem())
         engine.addSystem(RenderSystem(batch))
+
+        infoBoard = InfoBoard(this)
 
         resetGame()
 
@@ -193,6 +199,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
             box2DDebugRenderer.render(world, camera.combined)
         }
 
+        infoBoard.draw()
+
         getReadyImage.isVisible = GM.getReady
         gameOverImage.isVisible = GM.gameOver
         stage.draw()
@@ -203,6 +211,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     }
 
     override fun dispose() {
+        infoBoard.dispose()
         stage.dispose()
         world.dispose()
         box2DDebugRenderer.dispose()

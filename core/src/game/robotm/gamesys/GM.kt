@@ -40,4 +40,8 @@ object GM {
     var getReady = true
     var gameOver = false
     var cameraY = 0f
+
+
+    // player info
+    var player_hp = 100f
 }

@@ -96,7 +96,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
 
             playerComponent.hp_regeneration_cd -= deltaTime
             if (playerComponent.hp_regeneration_cd <= 0 && !GM.gameOver) {
-                playerComponent.hp = Math.min(PlayerComponent.FULL_HP, playerComponent.hp + PlayerComponent.HP_REGENERATION_PER_SECOND * deltaTime)
+                playerComponent.hp = Math.min(PlayerComponent.FULL_HP, playerComponent.hp + playerComponent.hp_regeneration_per_second * deltaTime)
             }
         }
 
@@ -108,6 +108,8 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         if (body.position.y < GM.cameraY - GM.SCREEN_HEIGHT / 2f - 1f) {
             playerComponent.hp = 0f
         }
+
+        GM.player_hp = playerComponent.hp
 
         if (playerComponent.hp <= 0) {
             GM.gameOver = true

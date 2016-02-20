@@ -20,6 +20,8 @@ class PlayerComponent: Component {
     var jumpForce = 8f
 
     var hp = FULL_HP
+
+    var hp_regeneration_per_second = HP_REGENERATION_PER_SECOND
     var hp_regeneration_cd = HP_REGENERATION_COLD_DURATION
 
     var lethalContactCount = 0

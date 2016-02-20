@@ -1,0 +1,47 @@
+
+gui.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Panel
+  rotate: false
+  xy: 1, 21
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+BarBack
+  rotate: false
+  xy: 1, 1
+  size: 36, 18
+  orig: 36, 18
+  offset: 0, 0
+  index: -1
+BarBlue
+  rotate: false
+  xy: 103, 103
+  size: 36, 18
+  orig: 36, 18
+  offset: 0, 0
+  index: -1
+BarYellow
+  rotate: false
+  xy: 39, 1
+  size: 36, 18
+  orig: 36, 18
+  offset: 0, 0
+  index: -1
+BarGreen
+  rotate: false
+  xy: 103, 83
+  size: 36, 18
+  orig: 36, 18
+  offset: 0, 0
+  index: -1
+BarRed
+  rotate: false
+  xy: 141, 103
+  size: 36, 18
+  orig: 36, 18
+  offset: 0, 0
+  index: -1
