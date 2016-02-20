@@ -8,11 +8,9 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
-import game.robotm.ecs.components.AnimationComponent
-import game.robotm.ecs.components.PhysicsComponent
-import game.robotm.ecs.components.PlayerComponent
-import game.robotm.ecs.components.RendererComponent
+import game.robotm.ecs.components.*
 import game.robotm.gamesys.GM
+import game.robotm.gamesys.ObjBuilder
 
 
 class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, PhysicsComponent::class.java, AnimationComponent::class.java, RendererComponent::class.java).get()) {
@@ -39,7 +37,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         playerCanJump = playerCanJump and !playerComponent.hitCeiling
 
         var playerMoving = false
-        if (!GM.gameOver && !GM.getReady) {
+        if (!playerComponent.isDead && !GM.getReady) {
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && playerCanJump) {
                 body.applyLinearImpulse(tmpVec1.set(0f, playerComponent.jumpForce - body.linearVelocity.y).scl(body.mass), body.worldCenter, true)
@@ -95,7 +93,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         } else {
 
             playerComponent.hp_regeneration_cd -= deltaTime
-            if (playerComponent.hp_regeneration_cd <= 0 && !GM.gameOver) {
+            if (playerComponent.hp_regeneration_cd <= 0 && !playerComponent.isDead) {
                 playerComponent.hp = Math.min(PlayerComponent.FULL_HP, playerComponent.hp + playerComponent.hp_regeneration_per_second * deltaTime)
             }
         }
@@ -109,10 +107,28 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
             playerComponent.hp = 0f
         }
 
-        GM.player_hp = playerComponent.hp
+        GM.playerHp = playerComponent.hp
 
-        if (playerComponent.hp <= 0) {
-            GM.gameOver = true
+        if (playerComponent.isDead) {
+            if (!playerComponent.explosionEffect) {
+                playerComponent.explosionEffect = true
+
+                ObjBuilder.createPlayerExplosionEffect(body.position.x, body.position.y)
+
+                body.fixtureList.forEach { fixture ->
+                    val fixtureData = fixture.filterData
+                    fixtureData.categoryBits = GM.CATEGORY_BITS_NOTHING.toShort()
+                    fixture.filterData = fixtureData
+                }
+
+                // remove TransformComponent so that the RendererSystem won't process it (no more drawing)
+                entity.remove(TransformComponent::class.java)
+            }
+
+            playerComponent.deadCountDown -= deltaTime
+            if (playerComponent.deadCountDown <= 0) {
+                GM.gameOver = true
+            }
         }
     }
 

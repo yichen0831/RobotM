@@ -10,6 +10,7 @@ object GM {
 
     val PLAYER_SCALE = 1f
 
+    val CATEGORY_BITS_NOTHING: Int = 0
     val CATEGORY_BITS_WALL: Int = 1 shl 0
     val CATEGORY_BITS_FLOOR: Int = 1 shl 1
     val CATEGORY_BITS_FLOOR_UNJUMPABLE: Int = 1 shl 2
@@ -43,5 +44,7 @@ object GM {
 
 
     // player info
-    var player_hp = 100f
+    var playerHp = 100f
+    val playerIsDead: Boolean
+        get() = playerHp <= 0
 }

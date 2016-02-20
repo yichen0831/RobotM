@@ -36,6 +36,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     lateinit var viewport: FitViewport
 
     var cameraSpeed = 3.6f
+    var cameraCurrentSpeed = cameraSpeed
     var nextFloorsAndWallGeneratingY = 0f
     val generatingInterval = 40
 
@@ -121,6 +122,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         // fill initial wall holes
         ObjBuilder.createWall(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, MathUtils.floor(WIDTH / 2f).toFloat() - 0.5f, 9.5f, 14)
 
+        cameraSpeed = 3.6f
         camera.position.y = 0f
         nextFloorsAndWallGeneratingY = -4.5f
 
@@ -158,7 +160,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     }
 
     fun update(delta: Float) {
-        camera.position.y -= cameraSpeed * delta
+        camera.position.y -= cameraCurrentSpeed * delta
 
         if (camera.position.y < nextFloorsAndWallGeneratingY + HEIGHT) {
             generateFloorsAndWalls()
@@ -183,6 +185,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
             update(delta)
             world.step(Math.min(delta, 1 / 60f), 8, 3)
         }
+
+        cameraCurrentSpeed = if (GM.playerIsDead) 0f else cameraSpeed
 
         camera.update()
         GM.cameraY = camera.position.y

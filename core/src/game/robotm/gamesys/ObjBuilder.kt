@@ -21,6 +21,7 @@ object ObjBuilder {
      * Spike, Spring: 4
      * Wall: 5
      * Ceiling & Ring-saw: 6 (last / top)
+     * Player explosion pieces: 7, 8, 9
      */
 
     var assetManager: AssetManager? = null
@@ -111,6 +112,75 @@ object ObjBuilder {
         engine!!.addEntity(entity)
 
         body.userData = entity
+    }
+
+    fun createPlayerExplosionEffect(x: Float, y: Float) {
+        val scale = GM.PLAYER_SCALE
+
+        // main body
+        val bodyDef = BodyDef()
+        bodyDef.type = BodyDef.BodyType.DynamicBody
+        bodyDef.position.set(x, y)
+
+        val mainBody = world!!.createBody(bodyDef)
+
+        val polygonShape = PolygonShape()
+        polygonShape.setAsBox(0.45f * scale, 0.375f * scale)
+
+        val fixtureDef = FixtureDef()
+        fixtureDef.shape = polygonShape
+        fixtureDef.density = 0.5f
+        fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_NOTHING.toShort()
+        fixtureDef.filter.maskBits = GM.MASK_BITS_NOTHING.toShort()
+
+        mainBody.createFixture(fixtureDef)
+
+        // left wheels
+        bodyDef.position.set(x + 0.15f * scale, y - 0.2f * scale)
+
+        val leftWheelsBody = world!!.createBody(bodyDef)
+
+        polygonShape.setAsBox(0.3f * scale, 0.2f * scale)
+        fixtureDef.shape = polygonShape
+        leftWheelsBody.createFixture(fixtureDef)
+
+        // right wheels
+        bodyDef.position.set(x - 0.15f * scale, y - 0.2f * scale)
+        val rightWheelsBody = world!!.createBody(bodyDef)
+        rightWheelsBody.createFixture(fixtureDef)
+
+        polygonShape.dispose()
+
+        mainBody.applyLinearImpulse(tmpVec1.set(MathUtils.random(-2f, 2f), MathUtils.random(6f)).scl(mainBody.mass), mainBody.worldCenter, true)
+        mainBody.applyAngularImpulse(MathUtils.random(-MathUtils.PI / 10f, MathUtils.PI / 10f), true)
+
+        leftWheelsBody.applyLinearImpulse(tmpVec1.set(MathUtils.random(-4f, 4f), MathUtils.random(6f)).scl(leftWheelsBody.mass), leftWheelsBody.worldCenter, true)
+        leftWheelsBody.applyAngularImpulse(MathUtils.random(-MathUtils.PI / 10f, MathUtils.PI / 10f), true)
+
+        rightWheelsBody.applyLinearImpulse(tmpVec1.set(MathUtils.random(-4f, 4f), MathUtils.random(6f)).scl(rightWheelsBody.mass), rightWheelsBody.worldCenter, true)
+        rightWheelsBody.applyAngularImpulse(MathUtils.random(-MathUtils.PI / 10f, MathUtils.PI / 10f), true)
+
+
+        val textureRegion = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java).findRegion("RobotM")
+
+        val mainBodyEntity = Entity()
+        mainBodyEntity.add(TransformComponent(mainBody.position.x, mainBody.position.y))
+        mainBodyEntity.add(PhysicsComponent(mainBody))
+        mainBodyEntity.add(RendererComponent(TextureRegion(textureRegion, 64 * 2, 0, 64, 48), 1f * scale, 0.75f * scale, renderOrder = 8))
+
+        val leftWheelsEntity = Entity()
+        leftWheelsEntity.add(TransformComponent(leftWheelsBody.position.x, leftWheelsBody.position.y))
+        leftWheelsEntity.add(PhysicsComponent(leftWheelsBody))
+        leftWheelsEntity.add(RendererComponent(TextureRegion(textureRegion, 64 * 7, 0, 64, 48), 1f * scale, 0.75f * scale, renderOrder = 7))
+
+        val rightWheelsEntity = Entity()
+        rightWheelsEntity.add(TransformComponent(rightWheelsBody.position.x, rightWheelsBody.position.y))
+        rightWheelsEntity.add(PhysicsComponent(rightWheelsBody))
+        rightWheelsEntity.add(RendererComponent(TextureRegion(textureRegion, 64 * 9, 0, 64, 48), 1f * scale, 0.75f * scale, renderOrder = 9))
+
+        engine!!.addEntity(mainBodyEntity)
+        engine!!.addEntity(leftWheelsEntity)
+        engine!!.addEntity(rightWheelsEntity)
     }
 
     private fun createWallBody(x: Float, y: Float): Body {

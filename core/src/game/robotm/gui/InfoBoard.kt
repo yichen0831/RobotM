@@ -44,9 +44,9 @@ class InfoBoard(val playScreen: PlayScreen) : Disposable {
 
         val barBackPatch = NinePatch(guiTextureAtlas.findRegion("BarBack"), 9, 9, 5, 5)
         val barRedPatch = NinePatch(guiTextureAtlas.findRegion("BarRed"), 9, 9, 5, 5)
-        val barGreenPatch = NinePatch(guiTextureAtlas.findRegion("BarGreen"), 9, 9, 5, 5)
-        val barBluePatch = NinePatch(guiTextureAtlas.findRegion("BarBlue"), 9, 9, 5, 5)
-        val barYellowPatch = NinePatch(guiTextureAtlas.findRegion("BarYellow"), 9, 9, 5, 5)
+//        val barGreenPatch = NinePatch(guiTextureAtlas.findRegion("BarGreen"), 9, 9, 5, 5)
+//        val barBluePatch = NinePatch(guiTextureAtlas.findRegion("BarBlue"), 9, 9, 5, 5)
+//        val barYellowPatch = NinePatch(guiTextureAtlas.findRegion("BarYellow"), 9, 9, 5, 5)
 
         hpBarImage = Image(barRedPatch)
         hpBarImage.setPosition(60f, screenTop - 38f)
@@ -78,8 +78,8 @@ class InfoBoard(val playScreen: PlayScreen) : Disposable {
 
     fun draw() {
 
-        hpBarImage.isVisible = GM.player_hp > 0
-        hpBarImage.width = 18f + 82f * (GM.player_hp / PlayerComponent.FULL_HP)
+        hpBarImage.isVisible = GM.playerHp > 0
+        hpBarImage.width = 18f + 82f * (GM.playerHp / PlayerComponent.FULL_HP)
 
         stringBuilder.setLength(0)
         stringBuilder.append("Distance: %04d".format(Math.abs(GM.cameraY.toInt())))

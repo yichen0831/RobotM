@@ -21,6 +21,12 @@ class PlayerComponent: Component {
 
     var hp = FULL_HP
 
+    val isDead: Boolean
+        get() = hp <= 0
+
+    var deadCountDown = 3f
+    var explosionEffect = false
+
     var hp_regeneration_per_second = HP_REGENERATION_PER_SECOND
     var hp_regeneration_cd = HP_REGENERATION_COLD_DURATION
 
