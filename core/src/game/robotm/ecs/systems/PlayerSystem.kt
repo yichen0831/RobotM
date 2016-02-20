@@ -88,7 +88,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
             }
         }
 
-        if (playerComponent.lethalContactCount > 0) {
+        if (playerComponent.lethalContactCount > 0 || playerComponent.hitCeiling) {
             playerComponent.hp -= PlayerComponent.DAMAGE_PER_SECOND * deltaTime
 
             playerComponent.hp_regeneration_cd = PlayerComponent.HP_REGENERATION_COLD_DURATION

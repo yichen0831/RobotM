@@ -8,7 +8,7 @@ class PlayerComponent: Component {
     companion object {
         val HIT_CEILING_COUNT_DOWN = 0.5f
 
-        val DAMAGE_PER_SECOND = 40f
+        val DAMAGE_PER_SECOND = 24f
 
         val HP_REGENERATION_PER_SECOND = 2f
         val HP_REGENERATION_COLD_DURATION = 3f
