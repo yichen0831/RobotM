@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.Body
 import game.robotm.ecs.components.*
 import game.robotm.gamesys.GM
 import game.robotm.gamesys.ObjBuilder
+import game.robotm.gamesys.SoundPlayer
 
 
 class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, PhysicsComponent::class.java, AnimationComponent::class.java, RendererComponent::class.java).get()) {
@@ -26,6 +27,10 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
     var playerCanJump = false
     var playerInAir = false
 
+    var damagedSoundID: Long = -1L
+    val damagedSound = SoundPlayer.getSound("damaged")
+
+
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val playerComponent = playerM.get(entity)
         val physicComponent = physicM.get(entity)
@@ -39,8 +44,13 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         var playerMoving = false
         if (!playerComponent.isDead && !GM.getReady) {
 
-            if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && playerCanJump) {
-                body.applyLinearImpulse(tmpVec1.set(0f, playerComponent.jumpForce - body.linearVelocity.y).scl(body.mass), body.worldCenter, true)
+            if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                if (playerCanJump) {
+                    SoundPlayer.play("jump")
+                    body.applyLinearImpulse(tmpVec1.set(0f, playerComponent.jumpForce - body.linearVelocity.y).scl(body.mass), body.worldCenter, true)
+                } else if (!playerInAir) {
+                    SoundPlayer.play("cant_jump")
+                }
             } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 body.applyLinearImpulse(tmpVec1.set(-playerComponent.speed - body.linearVelocity.x, 0f).scl(body.mass), body.worldCenter, true)
                 playerMoving = true
@@ -89,8 +99,21 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         if (playerComponent.lethalContactCount > 0 || playerComponent.hitCeiling) {
             playerComponent.hp -= PlayerComponent.DAMAGE_PER_SECOND * deltaTime
 
+            if (!playerComponent.isDead) {
+                if (damagedSoundID == -1L) {
+                    damagedSoundID = damagedSound.loop()
+                }
+                else {
+                    damagedSound.resume(damagedSoundID)
+                }
+            }
+
             playerComponent.hp_regeneration_cd = PlayerComponent.HP_REGENERATION_COLD_DURATION
         } else {
+
+            if (damagedSoundID != -1L) {
+                damagedSound.pause(damagedSoundID)
+            }
 
             playerComponent.hp_regeneration_cd -= deltaTime
             if (playerComponent.hp_regeneration_cd <= 0 && !playerComponent.isDead) {
@@ -101,6 +124,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         if (playerComponent.hitSpring) {
             body.applyLinearImpulse(tmpVec1.set(0f, playerComponent.jumpForce - body.linearVelocity.y).scl(body.mass), body.worldCenter, true)
             playerComponent.hitSpring = false
+            SoundPlayer.play("jump")
         }
 
         if (body.position.y < GM.cameraY - GM.SCREEN_HEIGHT / 2f - 1f) {
@@ -120,6 +144,8 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
                     fixtureData.categoryBits = GM.CATEGORY_BITS_NOTHING.toShort()
                     fixture.filterData = fixtureData
                 }
+
+                SoundPlayer.play("explode")
 
                 // remove TransformComponent so that the RendererSystem won't process it (no more drawing)
                 entity.remove(TransformComponent::class.java)

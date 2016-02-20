@@ -24,6 +24,7 @@ import game.robotm.RobotM
 import game.robotm.ecs.systems.*
 import game.robotm.gamesys.GM
 import game.robotm.gamesys.ObjBuilder
+import game.robotm.gamesys.SoundPlayer
 import game.robotm.gamesys.WorldContactListener
 import game.robotm.gui.InfoBoard
 
@@ -62,10 +63,6 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     var goSoundPlayed = false
     var gameOverSoundPlayed = false
 
-    lateinit var readySound: Sound
-    lateinit var goSound:Sound
-    lateinit var gameOverSound: Sound
-
     val box2DDebugRenderer = Box2DDebugRenderer()
     var showBox2DDebugRenderer = true
 
@@ -79,7 +76,13 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         assetManager.load("sounds/ready.ogg", Sound::class.java)
         assetManager.load("sounds/go.ogg", Sound::class.java)
         assetManager.load("sounds/game_over.ogg", Sound::class.java)
+        assetManager.load("sounds/damaged.ogg", Sound::class.java)
+        assetManager.load("sounds/explode.mp3", Sound::class.java)
+        assetManager.load("sounds/jump.mp3", Sound::class.java)
+        assetManager.load("sounds/cant_jump.ogg", Sound::class.java)
         assetManager.finishLoading()
+
+        SoundPlayer.load(assetManager)
 
         camera = OrthographicCamera()
         viewport = FitViewport(WIDTH, HEIGHT, camera)
@@ -113,10 +116,6 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         engine.addSystem(RenderSystem(batch))
 
         infoBoard = InfoBoard(this)
-
-        readySound = assetManager.get("sounds/ready.ogg", Sound::class.java)
-        goSound = assetManager.get("sounds/go.ogg", Sound::class.java)
-        gameOverSound = assetManager.get("sounds/game_over.ogg", Sound::class.java)
 
         resetGame()
 
@@ -200,14 +199,14 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
             if (readyCountDown < READY_COUNT_DOWN - 0.5f) {
                 if (!readySoundPlayed) {
-                    readySound.play()
+                    SoundPlayer.play("ready")
                     readySoundPlayed = true
                 }
             }
 
             if (readyCountDown < 0.5f) {
                 if (!goSoundPlayed) {
-                    goSound.play()
+                    SoundPlayer.play("go")
                     goSoundPlayed = true
                 }
             }
@@ -247,7 +246,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         if (GM.gameOver) {
             if (!gameOverSoundPlayed) {
-                gameOverSound.play()
+                SoundPlayer.play("game_over")
                 gameOverSoundPlayed = true
             }
         }
