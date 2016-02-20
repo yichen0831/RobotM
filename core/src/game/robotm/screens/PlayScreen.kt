@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.ScreenAdapter
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
@@ -31,6 +32,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     val WIDTH = GM.SCREEN_WIDTH
     val HEIGHT = GM.SCREEN_HEIGHT
 
+    val READY_COUNT_DOWN = 2f
+
     val batch = mainGame.batch
     lateinit var camera: OrthographicCamera
     lateinit var viewport: FitViewport
@@ -53,7 +56,15 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
     lateinit var infoBoard: InfoBoard
 
-    var readyCountDown = 3f
+    var readyCountDown = READY_COUNT_DOWN
+
+    var readySoundPlayed = false
+    var goSoundPlayed = false
+    var gameOverSoundPlayed = false
+
+    lateinit var readySound: Sound
+    lateinit var goSound:Sound
+    lateinit var gameOverSound: Sound
 
     val box2DDebugRenderer = Box2DDebugRenderer()
     var showBox2DDebugRenderer = true
@@ -65,6 +76,9 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         assetManager.load("img/textGameOver.png", Texture::class.java)
         assetManager.load("img/textGetReady.png", Texture::class.java)
         assetManager.load("img/gui.atlas", TextureAtlas::class.java)
+        assetManager.load("sounds/ready.ogg", Sound::class.java)
+        assetManager.load("sounds/go.ogg", Sound::class.java)
+        assetManager.load("sounds/game_over.ogg", Sound::class.java)
         assetManager.finishLoading()
 
         camera = OrthographicCamera()
@@ -100,6 +114,10 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         infoBoard = InfoBoard(this)
 
+        readySound = assetManager.get("sounds/ready.ogg", Sound::class.java)
+        goSound = assetManager.get("sounds/go.ogg", Sound::class.java)
+        gameOverSound = assetManager.get("sounds/game_over.ogg", Sound::class.java)
+
         resetGame()
 
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
@@ -131,10 +149,14 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         ObjBuilder.generateRingSaws(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, 4.5f, 16)
         ObjBuilder.generateCeilings(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, 5.5f, 16)
 
-        readyCountDown = 3f
+        readyCountDown = READY_COUNT_DOWN
 
         GM.getReady = true
         GM.gameOver = false
+
+        readySoundPlayed = false
+        goSoundPlayed = false
+        gameOverSoundPlayed = false
     }
 
     private fun generateFloorsAndWalls() {
@@ -176,6 +198,20 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         if (GM.getReady) {
             readyCountDown -= delta
 
+            if (readyCountDown < READY_COUNT_DOWN - 0.5f) {
+                if (!readySoundPlayed) {
+                    readySound.play()
+                    readySoundPlayed = true
+                }
+            }
+
+            if (readyCountDown < 0.5f) {
+                if (!goSoundPlayed) {
+                    goSound.play()
+                    goSoundPlayed = true
+                }
+            }
+
             if (readyCountDown <= 0) {
                 GM.getReady = false
             }
@@ -208,6 +244,13 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         getReadyImage.isVisible = GM.getReady
         gameOverImage.isVisible = GM.gameOver
         stage.draw()
+
+        if (GM.gameOver) {
+            if (!gameOverSoundPlayed) {
+                gameOverSound.play()
+                gameOverSoundPlayed = true
+            }
+        }
     }
 
     override fun resize(width: Int, height: Int) {
