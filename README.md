@@ -6,6 +6,10 @@ You are RobotM, a robot trying to escape from being destroyed. Try the best to k
 
 ![screenshot](https://github.com/yichen0831/RobotM/raw/master/screenshot.png)
 
+Download: [Release](https://github.com/yichen0831/RobotM/releases)
+- Jar [Link](https://github.com/yichen0831/RobotM/releases/download/v1.0/RobotM-1.0.jar)
+- Win32 [Link](https://github.com/yichen0831/RobotM/releases/download/v1.0/RobotM-1.0.exe)
+
 ## Controls
 
 LEFT / RIGHT: move left / right
