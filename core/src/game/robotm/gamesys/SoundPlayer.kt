@@ -5,7 +5,6 @@ import com.badlogic.gdx.audio.Sound
 
 
 object SoundPlayer {
-//    val PATH = "sounds/"
 
     var readySound: Sound? = null
     var goSound: Sound? = null
@@ -13,6 +12,7 @@ object SoundPlayer {
     var damagedSound: Sound? = null
     var explodeSound: Sound? = null
     var jumpSound: Sound? = null
+    var springSound: Sound? = null
     var cantJumpSound: Sound? = null
 
     fun load(assetManager: AssetManager) {
@@ -20,8 +20,9 @@ object SoundPlayer {
         goSound = assetManager.get("sounds/go.ogg", Sound::class.java)
         gameOverSound = assetManager.get("sounds/game_over.ogg", Sound::class.java)
         damagedSound = assetManager.get("sounds/damaged.ogg", Sound::class.java)
-        explodeSound = assetManager.get("sounds/explode.mp3", Sound::class.java)
-        jumpSound = assetManager.get("sounds/jump.mp3", Sound::class.java)
+        explodeSound = assetManager.get("sounds/explode.ogg", Sound::class.java)
+        jumpSound = assetManager.get("sounds/jump.ogg", Sound::class.java)
+        springSound = assetManager.get("sounds/spring.ogg", Sound::class.java)
         cantJumpSound = assetManager.get("sounds/cant_jump.ogg", Sound::class.java)
     }
 
@@ -33,6 +34,7 @@ object SoundPlayer {
             "damaged" -> return damagedSound!!
             "explode" -> return explodeSound!!
             "jump" -> return jumpSound!!
+            "spring" -> return springSound!!
             "cant_jump" -> return cantJumpSound!!
             else -> return readySound!!
         }
@@ -46,6 +48,7 @@ object SoundPlayer {
             "damaged" -> return damagedSound!!.play()
             "explode" -> return explodeSound!!.play()
             "jump" -> return jumpSound!!.play()
+            "spring" -> return springSound!!.play()
             "cant_jump" -> return cantJumpSound!!.play()
             else -> return -1L
         }

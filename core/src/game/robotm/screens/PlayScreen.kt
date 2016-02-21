@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.ScreenAdapter
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -63,6 +64,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     var goSoundPlayed = false
     var gameOverSoundPlayed = false
 
+    lateinit var backgroundMusic: Music
+
     val box2DDebugRenderer = Box2DDebugRenderer()
     var showBox2DDebugRenderer = true
 
@@ -77,12 +80,16 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         assetManager.load("sounds/go.ogg", Sound::class.java)
         assetManager.load("sounds/game_over.ogg", Sound::class.java)
         assetManager.load("sounds/damaged.ogg", Sound::class.java)
-        assetManager.load("sounds/explode.mp3", Sound::class.java)
-        assetManager.load("sounds/jump.mp3", Sound::class.java)
+        assetManager.load("sounds/explode.ogg", Sound::class.java)
+        assetManager.load("sounds/jump.ogg", Sound::class.java)
+        assetManager.load("sounds/spring.ogg", Sound::class.java)
         assetManager.load("sounds/cant_jump.ogg", Sound::class.java)
+        assetManager.load("music/S31-Undercover Operative.ogg", Music::class.java)
         assetManager.finishLoading()
 
         SoundPlayer.load(assetManager)
+
+        backgroundMusic = assetManager.get("music/S31-Undercover Operative.ogg", Music::class.java)
 
         camera = OrthographicCamera()
         viewport = FitViewport(WIDTH, HEIGHT, camera)
@@ -169,7 +176,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            if (GM.gameOver) {
+            if (gameOverSoundPlayed) {
                 resetGame()
             }
         }
@@ -213,6 +220,9 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
             if (readyCountDown <= 0) {
                 GM.getReady = false
+                backgroundMusic.isLooping = true
+                backgroundMusic.volume = 0.5f
+                backgroundMusic.play()
             }
         }
 
@@ -245,6 +255,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         stage.draw()
 
         if (GM.gameOver) {
+            backgroundMusic.stop()
             if (!gameOverSoundPlayed) {
                 SoundPlayer.play("game_over")
                 gameOverSoundPlayed = true

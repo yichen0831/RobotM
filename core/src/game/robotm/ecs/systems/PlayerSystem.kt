@@ -81,7 +81,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
 
             body.fixtureList.forEach { fixture ->
                 val filterData = fixture.filterData
-                filterData.maskBits = GM.MASK_BITS_PLAYER_AFTER_HTTING_CEILING.toShort()
+                filterData.maskBits = GM.MASK_BITS_PLAYER_HITTING_CEILING.toShort()
                 fixture.filterData = filterData
             }
 
@@ -112,7 +112,8 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         } else {
 
             if (damagedSoundID != -1L) {
-                damagedSound.pause(damagedSoundID)
+                damagedSound.stop(damagedSoundID)
+                damagedSoundID = -1L
             }
 
             playerComponent.hp_regeneration_cd -= deltaTime
@@ -124,7 +125,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         if (playerComponent.hitSpring) {
             body.applyLinearImpulse(tmpVec1.set(0f, playerComponent.jumpForce - body.linearVelocity.y).scl(body.mass), body.worldCenter, true)
             playerComponent.hitSpring = false
-            SoundPlayer.play("jump")
+            SoundPlayer.play("spring")
         }
 
         if (body.position.y < GM.cameraY - GM.SCREEN_HEIGHT / 2f - 1f) {
@@ -144,7 +145,8 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
                     fixtureData.categoryBits = GM.CATEGORY_BITS_NOTHING.toShort()
                     fixture.filterData = fixtureData
                 }
-
+                damagedSound.stop(damagedSoundID)
+                damagedSoundID= -1L
                 SoundPlayer.play("explode")
 
                 // remove TransformComponent so that the RendererSystem won't process it (no more drawing)
