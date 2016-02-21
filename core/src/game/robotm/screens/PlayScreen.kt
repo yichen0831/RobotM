@@ -152,8 +152,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         generateFloorsAndWalls()
 
-        ObjBuilder.generateRingSaws(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, 4.5f, 16)
-        ObjBuilder.generateCeilings(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, 5.5f, 16)
+        ObjBuilder.generateRingSaws(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, 6.5f, 16)
+        ObjBuilder.generateCeilings(-MathUtils.floor(WIDTH / 2f).toFloat() + 0.5f, 7.5f, 16)
 
         readyCountDown = READY_COUNT_DOWN
 

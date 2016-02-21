@@ -39,8 +39,8 @@ class InfoBoard(val playScreen: PlayScreen) : Disposable {
         val panelPatch = NinePatch(guiTextureAtlas.findRegion("Panel"), 10, 10, 10, 10)
 
         val panelImage = Image(panelPatch)
-        panelImage.setPosition(0f, screenTop - 120f)
-        panelImage.setSize(Gdx.graphics.width.toFloat(), 120f)
+        panelImage.setPosition(0f, screenTop - 90f)
+        panelImage.setSize(Gdx.graphics.width.toFloat(), 90f)
 
         val barBackPatch = NinePatch(guiTextureAtlas.findRegion("BarBack"), 9, 9, 5, 5)
         val barRedPatch = NinePatch(guiTextureAtlas.findRegion("BarRed"), 9, 9, 5, 5)
