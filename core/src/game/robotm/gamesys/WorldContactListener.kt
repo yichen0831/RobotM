@@ -35,6 +35,16 @@ class WorldContactListener : ContactListener {
                         val interactionComponent = springEntity.getComponent(InteractionComponent::class.java)
                         interactionComponent.status = "hit"
                     }
+                    GM.CATEGORY_BITS_ITEM.toShort() -> {
+                        val itemEntity: Entity = fixtureB.body.userData as Entity
+                        val interactionComponent = itemEntity.getComponent(InteractionComponent::class.java)
+                        val itemType = ItemType.valueOf(interactionComponent.subType)
+
+                        interactionComponent.status = "hit"
+
+                        playerComponent.applyPowerUp(itemType)
+
+                    }
                 }
             } else {
                 val playerEntity: Entity = fixtureB.body.userData as Entity
@@ -52,6 +62,16 @@ class WorldContactListener : ContactListener {
                         val springEntity: Entity = fixtureA.body.userData as Entity
                         val interactionComponent = springEntity.getComponent(InteractionComponent::class.java)
                         interactionComponent.status = "hit"
+                    }
+                    GM.CATEGORY_BITS_ITEM.toShort() -> {
+                        val itemEntity: Entity = fixtureA.body.userData as Entity
+                        val interactionComponent = itemEntity.getComponent(InteractionComponent::class.java)
+                        val itemType = ItemType.valueOf(interactionComponent.subType)
+
+                        interactionComponent.status = "hit"
+
+                        playerComponent.applyPowerUp(itemType)
+
                     }
                 }
             }

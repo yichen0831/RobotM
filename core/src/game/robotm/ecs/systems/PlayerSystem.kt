@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import game.robotm.ecs.components.*
 import game.robotm.gamesys.GM
+import game.robotm.gamesys.ItemType
 import game.robotm.gamesys.ObjBuilder
 import game.robotm.gamesys.SoundPlayer
 
@@ -40,6 +41,48 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         val body = physicComponent.body
         val animationComponent = animM.get(entity)
         val rendererComponent = rendererM.get(entity)
+
+        val powerUpStatusMap = playerComponent.powerUpStatusMap
+
+        for (key in powerUpStatusMap.keys) {
+            val value = powerUpStatusMap[key]!!
+            if (value > 0) {
+                powerUpStatusMap[key] = Math.max(0f, value - deltaTime)
+            }
+
+            when (key) {
+                ItemType.FastFeet -> {
+                    if (value > 0) {
+                        playerComponent.speed = PlayerComponent.SPEED * 1.5f
+                    } else {
+                        playerComponent.speed = PlayerComponent.SPEED
+                    }
+                }
+                ItemType.HardSkin -> {
+                    if (value > 0) {
+                        playerComponent.damage_per_second = PlayerComponent.DAMAGE_PER_SECOND * 0.8f
+                    } else {
+                        playerComponent.damage_per_second = PlayerComponent.DAMAGE_PER_SECOND
+                    }
+                }
+                ItemType.QuickHealing -> {
+                    if (value > 0) {
+                        playerComponent.hp_regeneration_per_second = PlayerComponent.HP_REGENERATION_PER_SECOND * 2f
+                        playerComponent.hp_regeneration_cd_time = PlayerComponent.HP_REGENERATION_COLD_DURATION / 3f
+                    } else {
+                        playerComponent.hp_regeneration_per_second = PlayerComponent.HP_REGENERATION_PER_SECOND
+                        playerComponent.hp_regeneration_cd_time = PlayerComponent.HP_REGENERATION_COLD_DURATION
+                    }
+                }
+                ItemType.LowGravity -> {
+                    if (value > 0) {
+                        body.gravityScale = 0.8f
+                    } else {
+                        body.gravityScale = 1f
+                    }
+                }
+            }
+        }
 
         checkPlayerInAirAndCanJump(body)
         playerCanJump = playerCanJump and !playerComponent.hitCeiling
@@ -98,7 +141,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         var playerIsDamaged = false
         if (playerComponent.lethalContactCount > 0 || playerComponent.hitCeiling) {
             playerIsDamaged = true
-            playerComponent.hp -= PlayerComponent.DAMAGE_PER_SECOND * deltaTime
+            playerComponent.hp -= playerComponent.damage_per_second * deltaTime
 
             if (!playerComponent.isDead) {
                 if (damagedSoundID == -1L) {
@@ -108,7 +151,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
                 }
             }
 
-            playerComponent.hp_regeneration_cd = PlayerComponent.HP_REGENERATION_COLD_DURATION
+            playerComponent.hp_regeneration_cd = playerComponent.hp_regeneration_cd_time
         } else {
 
             if (damagedSoundID != -1L) {

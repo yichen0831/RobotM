@@ -38,16 +38,23 @@ Grass
   orig: 384, 64
   offset: 0, 0
   index: -1
-Spin
+Items
   rotate: false
   xy: 387, 67
+  size: 256, 64
+  orig: 256, 64
+  offset: 0, 0
+  index: -1
+Spin
+  rotate: false
+  xy: 387, 1
   size: 128, 64
   orig: 128, 64
   offset: 0, 0
   index: -1
 Spring
   rotate: false
-  xy: 387, 1
+  xy: 645, 67
   size: 128, 64
   orig: 128, 64
   offset: 0, 0

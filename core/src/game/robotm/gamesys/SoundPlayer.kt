@@ -15,6 +15,7 @@ object SoundPlayer {
     var springSound: Sound? = null
     var cantJumpSound: Sound? = null
     var engineSound: Sound? = null
+    var powerUpSound: Sound? = null
 
     fun load(assetManager: AssetManager) {
         readySound = assetManager.get("sounds/ready.ogg", Sound::class.java)
@@ -26,6 +27,7 @@ object SoundPlayer {
         springSound = assetManager.get("sounds/spring.ogg", Sound::class.java)
         cantJumpSound = assetManager.get("sounds/cant_jump.ogg", Sound::class.java)
         engineSound = assetManager.get("sounds/engine.ogg", Sound::class.java)
+        powerUpSound = assetManager.get("sounds/power_up.ogg", Sound::class.java)
     }
 
     fun getSound(sound: String): Sound {
@@ -39,6 +41,7 @@ object SoundPlayer {
             "spring" -> return springSound!!
             "cant_jump" -> return cantJumpSound!!
             "engine" -> return engineSound!!
+            "power_up" -> return powerUpSound!!
             else -> return readySound!!
         }
     }
@@ -54,6 +57,7 @@ object SoundPlayer {
             "spring" -> return springSound!!.play()
             "cant_jump" -> return cantJumpSound!!.play()
             "engine" -> return engineSound!!.play()
+            "power_up" -> return powerUpSound!!.play()
             else -> return -1L
         }
     }

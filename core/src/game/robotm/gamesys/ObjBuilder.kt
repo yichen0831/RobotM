@@ -18,7 +18,7 @@ object ObjBuilder {
     /* Render Order
      * Floor: 2 (first / bottom)
      * Player: 3
-     * Spike, Spring: 4
+     * Spike, Spring, Item: 4
      * Wall: 5
      * Ceiling & Ring-saw: 6 (last / top)
      * Player explosion pieces: 7, 8, 9
@@ -391,7 +391,7 @@ object ObjBuilder {
 
         while (y >= start - height) {
 
-            if (gap >= 5 || MathUtils.random() > 0.05f) {
+            if (gap <= 5 || MathUtils.random() > 0.05f) {
 
                 if (length >= 6 && MathUtils.randomBoolean(0.6f)) {
 
@@ -404,6 +404,8 @@ object ObjBuilder {
                     }
                     else if (shouldMakeSpring(y)) {
                         generateSprings(x, y + 1, length)
+                    } else if (MathUtils.randomBoolean(0.1f)) {
+                        generateRandomPowerUpItem(x + MathUtils.random(length - 1), y + 1.5f)
                     }
 
                     length = MathUtils.random(2, 3)
@@ -414,6 +416,8 @@ object ObjBuilder {
                         generateSpikes(x, y + 1, length)
                     } else if (shouldMakeSpring(y)) {
                         generateSprings(x, y + 1, length)
+                    } else if (MathUtils.randomBoolean(0.1f)) {
+                        generateRandomPowerUpItem(x + MathUtils.random(length - 1), y + 1.5f)
                     }
 
                 } else {
@@ -422,6 +426,8 @@ object ObjBuilder {
                         generateSpikes(x, y + 1, length)
                     } else if (shouldMakeSpring(y)) {
                         generateSprings(x, y + 1, length)
+                    } else if (MathUtils.randomBoolean(0.1f)) {
+                        generateRandomPowerUpItem(x + MathUtils.random(length - 1), y + 1.5f)
                     }
                 }
             }
@@ -639,5 +645,60 @@ object ObjBuilder {
         for (i in 0..length - 1) {
             createSpring(x + i, y)
         }
+    }
+
+    fun createPowerUpItem(x: Float, y: Float, type: ItemType) {
+
+        val bodyDef = BodyDef()
+        bodyDef.type = BodyDef.BodyType.KinematicBody
+        bodyDef.position.set(x, y)
+
+        val body = world!!.createBody(bodyDef)
+
+        val circleShape = CircleShape()
+        circleShape.radius = 0.4f
+
+        val fixtureDef = FixtureDef()
+        fixtureDef.shape = circleShape
+        fixtureDef.isSensor = true
+        fixtureDef.filter.categoryBits = GM.CATEGORY_BITS_ITEM.toShort()
+        fixtureDef.filter.maskBits = GM.MASK_BITS_ITEM.toShort()
+
+        body.createFixture(fixtureDef)
+        circleShape.dispose()
+
+        val textureRegion = assetManager!!.get("img/actors.atlas", TextureAtlas::class.java).findRegion("Items")
+
+        val itemTextureRegion: TextureRegion
+
+        when (type) {
+            ItemType.FastFeet -> itemTextureRegion = TextureRegion(textureRegion, 0, 0, 64, 64)
+            ItemType.HardSkin -> itemTextureRegion = TextureRegion(textureRegion, 64, 0, 64, 64)
+            ItemType.QuickHealing -> itemTextureRegion = TextureRegion(textureRegion, 128, 0, 64, 64)
+            ItemType.LowGravity -> itemTextureRegion = TextureRegion(textureRegion, 192, 0, 64, 64)
+            else -> itemTextureRegion = TextureRegion(textureRegion, 0, 0, 64, 64)
+        }
+
+        val anims = HashMap<String, Animation>()
+        var animation: Animation
+        val keyFrames = Array<TextureRegion>()
+
+        keyFrames.add(itemTextureRegion)
+        animation = Animation(0.1f, keyFrames, Animation.PlayMode.LOOP)
+        anims.put("normal", animation)
+
+        val entity = Entity()
+        entity.add(TransformComponent(x, y))
+        entity.add(InteractionComponent(InteractionType.ITEM, type.name))
+        entity.add(PhysicsComponent(body))
+        entity.add(RendererComponent(itemTextureRegion, 1f, 1f, renderOrder = 4))
+        entity.add(AnimationComponent(anims, "normal"))
+
+        engine!!.addEntity(entity)
+        body.userData = entity
+    }
+
+    fun generateRandomPowerUpItem(x: Float, y: Float) {
+        createPowerUpItem(x, y, ItemType.randomType())
     }
 }

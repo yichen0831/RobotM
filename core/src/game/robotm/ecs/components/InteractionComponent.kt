@@ -8,6 +8,6 @@ enum class InteractionType {
     ITEM
 }
 
-class InteractionComponent(val type: InteractionType) : Component {
+class InteractionComponent(val type: InteractionType, val subType: String = "empty") : Component {
     var status = "normal"
 }

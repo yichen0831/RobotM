@@ -8,6 +8,7 @@ import game.robotm.ecs.components.AnimationComponent
 import game.robotm.ecs.components.InteractionComponent
 import game.robotm.ecs.components.InteractionType
 import game.robotm.ecs.components.PhysicsComponent
+import game.robotm.gamesys.SoundPlayer
 
 
 class InteractionSystem : IteratingSystem(Family.all(InteractionComponent::class.java, PhysicsComponent::class.java, AnimationComponent::class.java).get()) {
@@ -34,7 +35,16 @@ class InteractionSystem : IteratingSystem(Family.all(InteractionComponent::class
                 }
             }
             InteractionType.ENEMY -> {}
-            InteractionType.ITEM -> {}
+            InteractionType.ITEM -> {
+                when (interactionComponent.status) {
+                    "normal" -> {}
+                    "hit" -> {
+                        body.world.destroyBody(body)
+                        engine.removeEntity(entity)
+                        SoundPlayer.play("power_up")
+                    }
+                }
+            }
         }
 
     }
