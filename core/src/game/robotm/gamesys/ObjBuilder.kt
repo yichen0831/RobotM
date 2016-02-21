@@ -342,12 +342,18 @@ object ObjBuilder {
         }
 
         if (y > -900) {
-            return MathUtils.randomBoolean(0.25f)
-        }
-        if (y > -1000) {
             return MathUtils.randomBoolean(0.3f)
         }
-        return MathUtils.randomBoolean(0.4f)
+
+        if (y > -1000) {
+            return MathUtils.randomBoolean(0.4f)
+        }
+
+        if (y > -1200) {
+            return MathUtils.randomBoolean(0.5f)
+        }
+
+        return MathUtils.randomBoolean(0.6f)
     }
 
     private fun shouldMakeSpring(y: Float): Boolean {
@@ -378,6 +384,11 @@ object ObjBuilder {
         if (y > -1000) {
             return MathUtils.randomBoolean(0.3f)
         }
+
+        if (y > -1200) {
+            return MathUtils.randomBoolean(0.35f)
+        }
+
         return MathUtils.randomBoolean(0.4f)
     }
 

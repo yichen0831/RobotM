@@ -223,6 +223,11 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
             if (playerComponent.deadCountDown <= 0) {
                 GM.gameOver = true
             }
+        } else {
+            // update player power up status to GM
+            powerUpStatusMap.entries.forEach { entry ->
+                GM.playerPowerUpStatusMap[entry.key] = entry.value
+            }
         }
     }
 

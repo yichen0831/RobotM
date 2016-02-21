@@ -50,7 +50,7 @@ class PlayerComponent: Component {
             ItemType.QuickHealing to 0f,
             ItemType.LowGravity to 0f)
 
-    fun applyPowerUp(type: ItemType, duration: Float = 5f) {
+    fun applyPowerUp(type: ItemType, duration: Float = 10f) {
         powerUpStatusMap[type] = duration
     }
 }

@@ -55,4 +55,12 @@ object GM {
     var playerHp = 100f
     val playerIsDead: Boolean
         get() = playerHp <= 0
+
+    val playerPowerUpStatusMap = hashMapOf(
+            ItemType.FastFeet to 0f,
+            ItemType.HardSkin to 0f,
+            ItemType.QuickHealing to 0f,
+            ItemType.LowGravity to 0f)
+
+    var highestDistance = 0
 }
