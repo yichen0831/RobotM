@@ -67,7 +67,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     lateinit var backgroundMusic: Music
 
     val box2DDebugRenderer = Box2DDebugRenderer()
-    var showBox2DDebugRenderer = true
+    var showBox2DDebugRenderer = false
 
     override fun show() {
 

@@ -75,16 +75,6 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
             rendererComponent.sclX = 1f
         }
 
-        if (playerInAir) {
-            animationComponent.currentAnim = "fall"
-        } else {
-            if (playerMoving) {
-                animationComponent.currentAnim = "move"
-            } else {
-                animationComponent.currentAnim = "idle"
-            }
-        }
-
         if (playerComponent.hitCeiling) {
             playerComponent.hitCeilingCountDown -= deltaTime
 
@@ -105,14 +95,15 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
             }
         }
 
+        var playerIsDamaged = false
         if (playerComponent.lethalContactCount > 0 || playerComponent.hitCeiling) {
+            playerIsDamaged = true
             playerComponent.hp -= PlayerComponent.DAMAGE_PER_SECOND * deltaTime
 
             if (!playerComponent.isDead) {
                 if (damagedSoundID == -1L) {
                     damagedSoundID = damagedSound.loop()
-                }
-                else {
+                } else {
                     damagedSound.resume(damagedSoundID)
                 }
             }
@@ -137,6 +128,29 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
             SoundPlayer.play("spring")
         }
 
+        // animation settings
+        if (playerInAir) {
+            if (playerIsDamaged) {
+                animationComponent.currentAnim = "fall_damaged"
+            } else {
+                animationComponent.currentAnim = "fall"
+            }
+        } else {
+            if (playerMoving) {
+                if (playerIsDamaged) {
+                    animationComponent.currentAnim = "move_damaged"
+                } else {
+                    animationComponent.currentAnim = "move"
+                }
+            } else {
+                if (playerIsDamaged) {
+                    animationComponent.currentAnim = "idle_damaged"
+                } else {
+                    animationComponent.currentAnim = "idle"
+                }
+            }
+        }
+
         if (body.position.y < GM.cameraY - GM.SCREEN_HEIGHT / 2f - 1f) {
             playerComponent.hp = 0f
         }
@@ -155,7 +169,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
                     fixture.filterData = fixtureData
                 }
                 damagedSound.stop(damagedSoundID)
-                damagedSoundID= -1L
+                damagedSoundID = -1L
                 SoundPlayer.play("explode")
 
                 // remove TransformComponent so that the RendererSystem won't process it (no more drawing)
@@ -191,7 +205,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
         val y = body.position.y
 
         for (i in -1..1) {
-            tmpVec1.set(x + (0.45f * i * GM.PLAYER_SCALE) , y)
+            tmpVec1.set(x + (0.45f * i * GM.PLAYER_SCALE), y)
             tmpVec2.set(x + (0.45f * i * GM.PLAYER_SCALE), y - (0.5f * GM.PLAYER_SCALE))
 
             world.rayCast(

@@ -99,8 +99,33 @@ object ObjBuilder {
 
         // fall animation
         keyFrames.add(TextureRegion(textureRegion, 64 * 6, 0, 64, 48))
-        anim = Animation(0.1f, keyFrames, Animation.PlayMode.NORMAL)
+        anim = Animation(0.1f, keyFrames, Animation.PlayMode.LOOP)
         animations.put("fall", anim)
+
+        keyFrames.clear()
+
+        // idle animation (damaged)
+        keyFrames.add(TextureRegion(textureRegion, 64 * 3, 0, 64, 48))
+        keyFrames.add(TextureRegion(textureRegion, 64 * 11, 0, 64, 48))
+        anim = Animation(0.05f, keyFrames, Animation.PlayMode.LOOP)
+        animations.put("idle_damaged", anim)
+
+        // move animation (damaged)
+        keyFrames.add(TextureRegion(textureRegion, 64 * 3, 0, 64, 48))
+        keyFrames.add(TextureRegion(textureRegion, 64 * 11, 0, 64, 48))
+        keyFrames.add(TextureRegion(textureRegion, 64 * 4, 0, 64, 48))
+        keyFrames.add(TextureRegion(textureRegion, 64 * 12, 0, 64, 48))
+
+        anim = Animation(0.05f, keyFrames, Animation.PlayMode.LOOP)
+        animations.put("move_damaged", anim)
+
+        keyFrames.clear()
+
+        // fall animation (damaged)
+        keyFrames.add(TextureRegion(textureRegion, 64 * 6, 0, 64, 48))
+        keyFrames.add(TextureRegion(textureRegion, 64 * 13, 0, 64, 48))
+        anim = Animation(0.05f, keyFrames, Animation.PlayMode.LOOP)
+        animations.put("fall_damaged", anim)
 
         val entity = Entity()
         entity.add(PlayerComponent())
@@ -151,13 +176,13 @@ object ObjBuilder {
 
         polygonShape.dispose()
 
-        mainBody.applyLinearImpulse(tmpVec1.set(MathUtils.random(-2f, 2f), MathUtils.random(6f)).scl(mainBody.mass), mainBody.worldCenter, true)
+        mainBody.applyLinearImpulse(tmpVec1.set(MathUtils.random(-2f, 2f), MathUtils.random(2f, 6f)).scl(mainBody.mass), mainBody.worldCenter, true)
         mainBody.applyAngularImpulse(MathUtils.random(-MathUtils.PI / 10f, MathUtils.PI / 10f), true)
 
-        leftWheelsBody.applyLinearImpulse(tmpVec1.set(MathUtils.random(-4f, 4f), MathUtils.random(6f)).scl(leftWheelsBody.mass), leftWheelsBody.worldCenter, true)
+        leftWheelsBody.applyLinearImpulse(tmpVec1.set(MathUtils.random(-4f, 4f), MathUtils.random(2f, 6f)).scl(leftWheelsBody.mass), leftWheelsBody.worldCenter, true)
         leftWheelsBody.applyAngularImpulse(MathUtils.random(-MathUtils.PI / 10f, MathUtils.PI / 10f), true)
 
-        rightWheelsBody.applyLinearImpulse(tmpVec1.set(MathUtils.random(-4f, 4f), MathUtils.random(6f)).scl(rightWheelsBody.mass), rightWheelsBody.worldCenter, true)
+        rightWheelsBody.applyLinearImpulse(tmpVec1.set(MathUtils.random(-4f, 4f), MathUtils.random(2f, 6f)).scl(rightWheelsBody.mass), rightWheelsBody.worldCenter, true)
         rightWheelsBody.applyAngularImpulse(MathUtils.random(-MathUtils.PI / 10f, MathUtils.PI / 10f), true)
 
 
