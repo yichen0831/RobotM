@@ -84,6 +84,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         assetManager.load("sounds/jump.ogg", Sound::class.java)
         assetManager.load("sounds/spring.ogg", Sound::class.java)
         assetManager.load("sounds/cant_jump.ogg", Sound::class.java)
+        assetManager.load("sounds/engine.ogg", Sound::class.java)
         assetManager.load("music/S31-Undercover Operative.ogg", Music::class.java)
         assetManager.finishLoading()
 

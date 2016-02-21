@@ -30,6 +30,9 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
     var damagedSoundID: Long = -1L
     val damagedSound = SoundPlayer.getSound("damaged")
 
+    var engineSoundID: Long = -1L
+    val engineSound = SoundPlayer.getSound("engine")
+
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val playerComponent = playerM.get(entity)
@@ -58,6 +61,12 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
                 body.applyLinearImpulse(tmpVec1.set(playerComponent.speed - body.linearVelocity.x, 0f).scl(body.mass), body.worldCenter, true)
                 playerMoving = true
             }
+        }
+
+        if (playerMoving && !playerInAir) {
+            playEngineSound()
+        } else {
+            stopEngineSound()
         }
 
         if (body.linearVelocity.x < -0.1f) {
@@ -158,6 +167,19 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
                 GM.gameOver = true
             }
         }
+    }
+
+    private fun playEngineSound() {
+        if (engineSoundID == -1L) {
+            engineSoundID = engineSound.loop()
+        }
+    }
+
+    private fun stopEngineSound() {
+        if (engineSoundID != -1L) {
+            engineSound.stop(engineSoundID)
+        }
+        engineSoundID = -1L
     }
 
     private fun checkPlayerInAirAndCanJump(body: Body) {
