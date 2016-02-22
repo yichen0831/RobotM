@@ -6,9 +6,11 @@ You are RobotM, a robot trying to escape from being destroyed. Try the best to k
 
 ![screenshot](https://github.com/yichen0831/RobotM/raw/master/screenshot.png)
 
-Download: [Release](https://github.com/yichen0831/RobotM/releases)
-- Jar [Link](https://github.com/yichen0831/RobotM/releases/download/v1.0/RobotM-1.0.jar)
-- Win32 [Link](https://github.com/yichen0831/RobotM/releases/download/v1.0/RobotM-1.0.exe)
+Download (requires JVM 1.6 above to run): 
+
+[Release](https://github.com/yichen0831/RobotM/releases)
+- v1.1 Jar [Link](https://github.com/yichen0831/RobotM/releases/download/v1.1/RobotM-1.1.jar)
+- v1.1 Win32 [Link](https://github.com/yichen0831/RobotM/releases/download/v1.1/RobotM-1.1.exe)
 
 ## Controls
 
@@ -20,17 +22,19 @@ ENTER: restart after being destroyed
 
 R: restart immediately
 
+ESCAPE: toggle option window
+
 ## Power up items
 
-Duration of 10 seconds
+all with duration of 10 seconds
 
-Fast Feet: move faster
+ - Fast Feet: move faster
 
-Hard Skin: take less damage
+ - Hard Skin: take less damage
 
-Quick Healing: heal more quickly
+ - Quick Healing: heal more quickly
 
-Low Gravidy: stay in air longer
+ - Low Gravidy: stay in air longer
 
 ## Resources
 
