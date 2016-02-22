@@ -10,8 +10,8 @@ import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
@@ -51,11 +51,24 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     lateinit var world: World
     lateinit var engine: Engine
 
-    lateinit var backgroundSprite: Sprite
+    lateinit var grassBackgroundTexture: Texture
+    lateinit var desertBackgroundTexture: Texture
+    lateinit var landBackgroundTexture: Texture
+    lateinit var shroomBackgroundTexture: Texture
+
+    val BACKGROUND_CHANGING_TIME = 3f
+    var currentBackgroundChangingTime = 0f
+    var changingBackground = false
+    var currentBackgrounIndex = 0
+    var nextBackgroundChange = -150f
+    var backgroundChangeInterval = 150f
+    lateinit var currentBackgroundTexture: Texture
+    lateinit var nextBackgroundTexture: Texture
 
     lateinit var stage: Stage
     lateinit var gameOverImage: Image
     lateinit var getReadyImage: Image
+    lateinit var backgroundTextures: kotlin.Array<Texture>
 
     lateinit var optionWindow: OptionWindow
     var showOptionWindow = false
@@ -77,6 +90,9 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         assetManager.load("img/actors.atlas", TextureAtlas::class.java)
         assetManager.load("img/backgrounds/blue_grass.png", Texture::class.java)
+        assetManager.load("img/backgrounds/blue_desert.png", Texture::class.java)
+        assetManager.load("img/backgrounds/blue_land.png", Texture::class.java)
+        assetManager.load("img/backgrounds/blue_shroom.png", Texture::class.java)
         assetManager.load("img/textGameOver.png", Texture::class.java)
         assetManager.load("img/textGetReady.png", Texture::class.java)
         assetManager.load("img/gui.atlas", TextureAtlas::class.java)
@@ -100,8 +116,14 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         camera = OrthographicCamera()
         viewport = FitViewport(WIDTH, HEIGHT, camera)
 
-        backgroundSprite = Sprite(assetManager.get("img/backgrounds/blue_grass.png", Texture::class.java))
-        backgroundSprite.setBounds(-HEIGHT / 2f, -HEIGHT / 2f, HEIGHT, HEIGHT)
+        grassBackgroundTexture = assetManager.get("img/backgrounds/blue_grass.png", Texture::class.java)
+        desertBackgroundTexture = assetManager.get("img/backgrounds/blue_desert.png", Texture::class.java)
+        landBackgroundTexture = assetManager.get("img/backgrounds/blue_land.png", Texture::class.java)
+        shroomBackgroundTexture = assetManager.get("img/backgrounds/blue_shroom.png", Texture::class.java)
+
+        backgroundTextures = arrayOf(grassBackgroundTexture, desertBackgroundTexture, landBackgroundTexture, shroomBackgroundTexture)
+        currentBackgroundTexture = backgroundTextures[currentBackgrounIndex]
+        nextBackgroundTexture = backgroundTextures[(currentBackgrounIndex + 1) % backgroundTextures.size]
 
         stage = Stage()
         gameOverImage = Image(assetManager.get("img/textGameOver.png", Texture::class.java))
@@ -176,6 +198,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         readySoundPlayed = false
         goSoundPlayed = false
         gameOverSoundPlayed = false
+
+        nextBackgroundChange = -150f
     }
 
     private fun generateFloorsAndWalls() {
@@ -211,6 +235,32 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
             generateFloorsAndWalls()
         }
 
+    }
+
+    fun drawBackground(delta: Float) {
+        batch.draw(currentBackgroundTexture, -WIDTH / 2f, camera.position.y - HEIGHT / 2f, HEIGHT, HEIGHT)
+
+        if (camera.position.y < nextBackgroundChange) {
+            changingBackground = true
+            nextBackgroundChange -= backgroundChangeInterval
+        }
+
+        if (changingBackground) {
+            currentBackgroundChangingTime += delta
+
+            batch.setColor(1f, 1f, 1f, Interpolation.fade.apply(currentBackgroundChangingTime / BACKGROUND_CHANGING_TIME))
+            batch.draw(nextBackgroundTexture, -WIDTH / 2f, camera.position.y - HEIGHT / 2f, HEIGHT, HEIGHT)
+            batch.setColor(1f, 1f, 1f, 1f)
+
+            if (currentBackgroundChangingTime >= BACKGROUND_CHANGING_TIME) {
+                currentBackgroundChangingTime = 0f
+                changingBackground = false
+
+                currentBackgrounIndex = (currentBackgrounIndex + 1) % backgroundTextures.size
+                currentBackgroundTexture = backgroundTextures[currentBackgrounIndex]
+                nextBackgroundTexture = backgroundTextures[(currentBackgrounIndex + 1) % backgroundTextures.size]
+            }
+        }
     }
 
     override fun render(delta: Float) {
@@ -252,11 +302,10 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         camera.update()
         GM.cameraY = camera.position.y
-        backgroundSprite.y = camera.position.y - HEIGHT / 2f
 
         batch.projectionMatrix = camera.combined
         batch.begin()
-        backgroundSprite.draw(batch)
+        drawBackground(delta)
         batch.end()
 
         if (showOptionWindow) {
