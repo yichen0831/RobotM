@@ -50,6 +50,8 @@ object GM {
     var gameOver = false
     var cameraY = 0f
 
+    var sfxVolume = 1.0f
+    var bgmVolume = 0.5f
 
     // player info
     var playerHp = 100f

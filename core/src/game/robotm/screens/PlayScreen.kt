@@ -28,6 +28,7 @@ import game.robotm.gamesys.ObjBuilder
 import game.robotm.gamesys.SoundPlayer
 import game.robotm.gamesys.WorldContactListener
 import game.robotm.gui.InfoBoard
+import game.robotm.gui.OptionWindow
 
 class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
@@ -55,6 +56,9 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     lateinit var stage: Stage
     lateinit var gameOverImage: Image
     lateinit var getReadyImage: Image
+
+    lateinit var optionWindow: OptionWindow
+    var showOptionWindow = false
 
     lateinit var infoBoard: InfoBoard
 
@@ -110,8 +114,15 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         getReadyImage.setPosition((Gdx.graphics.width - getReadyImage.width) / 2f, (Gdx.graphics.height - getReadyImage.height) / 2f)
         getReadyImage.isVisible = GM.getReady
 
+        optionWindow = OptionWindow("Option", assetManager)
+        optionWindow.setSize(240f, 200f)
+        optionWindow.centerWindow()
+
         stage.addActor(gameOverImage)
         stage.addActor(getReadyImage)
+        stage.addActor(optionWindow)
+
+        Gdx.input.inputProcessor = stage
 
         world = World(Vector2(0f, -16f), true)
         world.setContactListener(WorldContactListener())
@@ -187,6 +198,10 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
             resetGame()
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            showOptionWindow = !showOptionWindow
+        }
+
     }
 
     fun update(delta: Float) {
@@ -203,7 +218,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         inputHandler()
 
-        if (GM.getReady) {
+        if (GM.getReady && !showOptionWindow) {
             readyCountDown -= delta
 
             if (readyCountDown < READY_COUNT_DOWN - 0.5f) {
@@ -228,7 +243,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
             }
         }
 
-        if (!GM.gameOver && !GM.getReady) {
+        if (!GM.gameOver && !GM.getReady && !showOptionWindow) {
             update(delta)
             world.step(Math.min(delta, 1 / 60f), 8, 3)
         }
@@ -244,7 +259,16 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         backgroundSprite.draw(batch)
         batch.end()
 
-        engine.update(delta)
+        if (showOptionWindow) {
+            engine.systems.filterIsInstance<RenderSystem>().forEach {
+                renderSystem ->
+                if (renderSystem.checkProcessing()) {
+                    renderSystem.update(delta)
+                }
+            }
+        } else {
+            engine.update(delta)
+        }
 
         if (showBox2DDebugRenderer) {
             box2DDebugRenderer.render(world, camera.combined)
@@ -252,10 +276,14 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
 
         infoBoard.draw()
 
-        getReadyImage.isVisible = GM.getReady
-        gameOverImage.isVisible = GM.gameOver
+        optionWindow.isVisible = showOptionWindow
+
+        getReadyImage.isVisible = if (showOptionWindow) false else GM.getReady
+        gameOverImage.isVisible = if (showOptionWindow) false else GM.gameOver
+
         stage.draw()
 
+        backgroundMusic.volume = GM.bgmVolume
         if (GM.gameOver) {
             backgroundMusic.stop()
             if (!gameOverSoundPlayed) {
@@ -266,6 +294,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     }
 
     override fun resize(width: Int, height: Int) {
+        stage.viewport.update(width, height)
         viewport.update(width, height)
     }
 

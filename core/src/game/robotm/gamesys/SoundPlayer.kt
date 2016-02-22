@@ -48,16 +48,16 @@ object SoundPlayer {
 
     fun play(sound: String): Long {
         when (sound) {
-            "ready" -> return readySound!!.play()
-            "go" -> return goSound!!.play()
-            "game_over" -> return gameOverSound!!.play()
-            "damaged" -> return damagedSound!!.play()
-            "explode" -> return explodeSound!!.play()
-            "jump" -> return jumpSound!!.play()
-            "spring" -> return springSound!!.play()
-            "cant_jump" -> return cantJumpSound!!.play()
-            "engine" -> return engineSound!!.play()
-            "power_up" -> return powerUpSound!!.play()
+            "ready" -> return readySound!!.play(GM.sfxVolume)
+            "go" -> return goSound!!.play(GM.sfxVolume)
+            "game_over" -> return gameOverSound!!.play(GM.sfxVolume)
+            "damaged" -> return damagedSound!!.play(GM.sfxVolume)
+            "explode" -> return explodeSound!!.play(GM.sfxVolume)
+            "jump" -> return jumpSound!!.play(GM.sfxVolume)
+            "spring" -> return springSound!!.play(GM.sfxVolume)
+            "cant_jump" -> return cantJumpSound!!.play(GM.sfxVolume)
+            "engine" -> return engineSound!!.play(GM.sfxVolume)
+            "power_up" -> return powerUpSound!!.play(GM.sfxVolume)
             else -> return -1L
         }
     }

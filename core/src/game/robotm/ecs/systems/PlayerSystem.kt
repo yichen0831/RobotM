@@ -145,7 +145,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
 
             if (!playerComponent.isDead) {
                 if (damagedSoundID == -1L) {
-                    damagedSoundID = damagedSound.loop()
+                    damagedSoundID = damagedSound.loop(GM.sfxVolume)
                 } else {
                     damagedSound.resume(damagedSoundID)
                 }
@@ -233,7 +233,7 @@ class PlayerSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Phy
 
     private fun playEngineSound() {
         if (engineSoundID == -1L) {
-            engineSoundID = engineSound.loop()
+            engineSoundID = engineSound.loop(GM.sfxVolume)
         }
     }
 
