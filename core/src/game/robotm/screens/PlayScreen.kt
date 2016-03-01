@@ -9,8 +9,10 @@ import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
@@ -82,6 +84,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
     var gameOverSoundPlayed = false
 
     lateinit var backgroundMusic: Music
+    lateinit var shadowFrameBuffer: FrameBuffer
 
     val box2DDebugRenderer = Box2DDebugRenderer()
     var showBox2DDebugRenderer = false
@@ -125,6 +128,8 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         currentBackgroundTexture = backgroundTextures[currentBackgrounIndex]
         nextBackgroundTexture = backgroundTextures[(currentBackgrounIndex + 1) % backgroundTextures.size]
 
+        shadowFrameBuffer = FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.width, Gdx.graphics.height, false)
+
         stage = Stage()
         gameOverImage = Image(assetManager.get("img/textGameOver.png", Texture::class.java))
         gameOverImage.setSize(250f, 50f)
@@ -155,7 +160,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         engine.addSystem(InteractionSystem())
         engine.addSystem(PhysicsSystem())
         engine.addSystem(AnimationSystem())
-        engine.addSystem(RenderSystem(batch))
+        engine.addSystem(RenderSystem(batch, shadowFrameBuffer, camera))
 
         infoBoard = InfoBoard(this)
 
@@ -353,6 +358,7 @@ class PlayScreen(val mainGame: RobotM): ScreenAdapter() {
         world.dispose()
         box2DDebugRenderer.dispose()
         assetManager.dispose()
+        shadowFrameBuffer.dispose()
     }
 
 }
