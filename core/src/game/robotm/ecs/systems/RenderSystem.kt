@@ -15,7 +15,7 @@ import game.robotm.ecs.components.TransformComponent
 import game.robotm.gamesys.GM
 
 
-class RenderSystem(val batch: SpriteBatch, val shadowFrameBuffer: FrameBuffer, val camera: Camera) : IteratingSystem(Family.all(RendererComponent::class.java, TransformComponent::class.java).get()) {
+class RenderSystem(val batch: SpriteBatch, val frameBuffer: FrameBuffer, val camera: Camera) : IteratingSystem(Family.all(RendererComponent::class.java, TransformComponent::class.java).get()) {
 
     val renderM = ComponentMapper.getFor(RendererComponent::class.java)
     val transformM = ComponentMapper.getFor(TransformComponent::class.java)
@@ -25,8 +25,7 @@ class RenderSystem(val batch: SpriteBatch, val shadowFrameBuffer: FrameBuffer, v
 
     override fun update(deltaTime: Float) {
 
-        // draw shadow
-        shadowFrameBuffer.begin()
+        frameBuffer.begin()
         Gdx.gl.glClearColor(0f, 0f, 0f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         batch.begin()
@@ -35,20 +34,16 @@ class RenderSystem(val batch: SpriteBatch, val shadowFrameBuffer: FrameBuffer, v
             rendererComponent.renderOrder
         }.forEach { processEntity(it, deltaTime) }
         batch.end()
-        shadowFrameBuffer.end()
+        frameBuffer.end()
 
-        val shadowTexture = shadowFrameBuffer.colorBufferTexture
+        val shadowTexture = frameBuffer.colorBufferTexture
         batch.begin()
+        // draw shadow
         batch.color = Color(0f, 0f, 0f, 0.2f)
         batch.draw(shadowTexture, -GM.SCREEN_WIDTH / 2f + shadowOffsetX, camera.position.y - GM.SCREEN_HEIGHT / 2f + shadowOffsetY, GM.SCREEN_WIDTH, GM.SCREEN_HEIGHT, 0, 0, shadowTexture.width, shadowTexture.height, false, true)
         batch.color = Color.WHITE
-        batch.end()
-
-        batch.begin()
-        entities.sortedBy { entity ->
-            val rendererComponent = renderM.get(entity)
-            rendererComponent.renderOrder
-        }.forEach { processEntity(it, deltaTime) }
+        // draw normal graphics
+        batch.draw(shadowTexture, -GM.SCREEN_WIDTH / 2f, camera.position.y - GM.SCREEN_HEIGHT / 2f, GM.SCREEN_WIDTH, GM.SCREEN_HEIGHT, 0, 0, shadowTexture.width, shadowTexture.height, false, true)
         batch.end()
     }
 
